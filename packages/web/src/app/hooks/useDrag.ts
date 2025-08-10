@@ -1,7 +1,7 @@
 import type React from "react"
 import { useRef } from "react"
 
-export function useDrag() {
+export function useDrag(updatePosition: (id: string, x: number, y: number) => void) {
   const dragging = useRef<{ id: string; offX: number; offY: number } | null>(null)
 
   const onMouseDown =
@@ -22,10 +22,7 @@ export function useDrag() {
     const { id, offX, offY } = dragging.current
     const x = e.clientX - offX
     const y = e.clientY - offY
-    // 이 함수들은 외부에서 주입받아야 하므로 콜백으로 처리
-    if (window.dragCallbacks) {
-      window.dragCallbacks.updatePosition(id, x, y)
-    }
+    updatePosition(id, x, y)
   }
 
   const onMouseUp = () => {
@@ -35,13 +32,4 @@ export function useDrag() {
   }
 
   return { onMouseDown }
-}
-
-// 전역 타입 확장
-declare global {
-  interface Window {
-    dragCallbacks?: {
-      updatePosition: (id: string, x: number, y: number) => void
-    }
-  }
 } 
