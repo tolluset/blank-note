@@ -1,6 +1,8 @@
 import type React from "react"
 import { useMemo } from "react"
 import type { Page } from "../types"
+import { Scissors } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface NotebookPageProps {
   label: string
@@ -23,15 +25,14 @@ export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps)
     <div className="relative rounded-lg border bg-white p-3 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
         <div className="text-xs text-neutral-500">{label}</div>
-        <div className="flex gap-2">
-          <button
-            className="rounded border px-2 py-1 text-xs hover:bg-neutral-50 disabled:opacity-50"
-            onClick={onTear}
-            disabled={!page}
-          >
-            {"페이지 찢기"}
-          </button>
-        </div>
+        <Button
+          variant="outline"
+          onClick={onTear}
+          disabled={!page}
+        >
+          <Scissors />
+          {"페이지 찢기"}
+        </Button>
       </div>
 
       <div className="rounded-md border" aria-label="노트 페이지">
