@@ -6,6 +6,7 @@ export function useDrag(updatePosition: (id: string, x: number, y: number) => vo
 
   const onMouseDown =
     (id: string, getPos: (id: string) => { x: number; y: number } | undefined) => (e: React.MouseEvent) => {
+      e.preventDefault()
       const pos = getPos(id)
       if (!pos) return
       dragging.current = {

@@ -19,17 +19,26 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onMouseDown }: 
       <div className="relative h-[560px] w-full overflow-auto rounded-lg border bg-neutral-50">
         <div className="absolute inset-0">
           {trashPages.map((pp) => (
-            <FreePageCard key={pp.id} x={pp.x} y={pp.y}>
+            <FreePageCard 
+              key={pp.id} 
+              x={pp.x} 
+              y={pp.y}
+              onMouseDown={onMouseDown(pp.id, (id) => {
+                const page = trashPages.find((p) => p.id === id)
+                return page ? { x: page.x, y: page.y } : undefined
+              })}
+            >
               <MovableHeader
                 title={"휴지통"}
-                onMouseDown={onMouseDown(pp.id, (id) => trashPages.find((p) => p.id === id))}
+                onMouseDown={() => {}}
               />
               <EditableArea
                 value={pp.content}
                 onChange={(v) => onEdit(pp.id, v)}
                 minHeightClass="min-h-[220px]"
+                onMouseDown={(e) => e.stopPropagation()}
               />
-              <div className="mt-2 flex gap-2">
+              <div className="mt-2 flex gap-2" onMouseDown={(e) => e.stopPropagation()}>
                 <Button
                   variant="destructive"
                   size="sm"

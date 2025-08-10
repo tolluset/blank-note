@@ -6,9 +6,10 @@ interface EditableAreaProps {
   value: string
   onChange: (v: string) => void
   minHeightClass?: string
+  onMouseDown?: (e: React.MouseEvent) => void
 }
 
-export function EditableArea({ value, onChange, minHeightClass = "min-h-[200px]" }: EditableAreaProps) {
+export function EditableArea({ value, onChange, minHeightClass = "min-h-[200px]", onMouseDown }: EditableAreaProps) {
   const linedStyle = useMemo(
     () => ({
       backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 23px, #e5e7eb 24px)",
@@ -16,7 +17,7 @@ export function EditableArea({ value, onChange, minHeightClass = "min-h-[200px]"
     [],
   )
   return (
-    <div className={`rounded-md ${minHeightClass}`} style={linedStyle as React.CSSProperties}>
+    <div className={`rounded-md ${minHeightClass}`} style={linedStyle as React.CSSProperties} onMouseDown={onMouseDown}>
       <Textarea
         className="h-full min-h-[inherit] w-full resize-none bg-transparent border-none outline-none shadow-none focus-visible:ring-0"
         placeholder="여기에 직접 입력하세요..."
