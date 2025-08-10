@@ -1,25 +1,60 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import type { Page, PositionedPage } from "../types"
 import { uid } from "../utils"
+import { notesAPI } from "../api"
 
 export function usePages() {
   // 노트북 내부 페이지(순서 유지)
-  const [pages, setPages] = useState<Page[]>(() => [
-    { id: uid(), content: "" },
-    { id: uid(), content: "" },
-    { id: uid(), content: "" },
-    { id: uid(), content: "" },
-  ])
+  const [pages, setPages] = useState<Page[]>([])
   // 찢은 페이지(자유 배치)
   const [loosePages, setLoosePages] = useState<PositionedPage[]>([])
   // 휴지통(자유 배치)
   const [trashPages, setTrashPages] = useState<PositionedPage[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // 데이터 초기 로딩
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [notesData, tornData, trashedData] = await Promise.all([
+          notesAPI.getNotes(),
+          notesAPI.getTornNotes(),
+          notesAPI.getTrashedNotes(),
+        ])
+
+        setPages(notesData || [])
+        setLoosePages(tornData || [])
+        setTrashPages(trashedData || [])
+      } catch (error) {
+        console.error('Failed to load notes:', error)
+        // 에러 시 기본 데이터로 초기화
+        setPages([
+          { id: uid(), content: "" },
+          { id: uid(), content: "" },
+          { id: uid(), content: "" },
+          { id: uid(), content: "" },
+        ])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [])
 
   // 공통 유틸: 특정 페이지 내용 업데이트(현재 위치에 따라 pages/loose/trash 중 해당하는 곳에서 반영)
-  const updateContent = useCallback((pageId: string, content: string) => {
+  const updateContent = useCallback(async (pageId: string, content: string) => {
+    // 로컬 상태 즉시 업데이트
     setPages((prev) => prev.map((p) => (p.id === pageId ? { ...p, content } : p)))
     setLoosePages((prev) => prev.map((pp) => (pp.page.id === pageId ? { ...pp, page: { ...pp.page, content } } : pp)))
     setTrashPages((prev) => prev.map((pp) => (pp.page.id === pageId ? { ...pp, page: { ...pp.page, content } } : pp)))
+
+    // 서버에 업데이트
+    try {
+      await notesAPI.updateNote(pageId, { content })
+    } catch (error) {
+      console.error('Failed to update note:', error)
+    }
   }, [])
 
   // 찢기: 노트 → 페이지 리스트로 이동
@@ -68,6 +103,7 @@ export function usePages() {
     pages,
     loosePages,
     trashPages,
+    loading,
     updateContent,
     tearPage,
     discardFromList,

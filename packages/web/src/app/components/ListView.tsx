@@ -25,8 +25,8 @@ export function ListView({ loosePages, onEdit, onDiscard, onMouseDown }: ListVie
                 onMouseDown={onMouseDown(pp.id, (id) => loosePages.find((p) => p.id === id))}
               />
               <EditableArea
-                value={pp.page.content}
-                onChange={(v) => onEdit(pp.page.id, v)}
+                value={pp.content}
+                onChange={(v) => onEdit(pp.id, v)}
                 minHeightClass="min-h-[220px]"
               />
               <div className="mt-2 flex gap-2">

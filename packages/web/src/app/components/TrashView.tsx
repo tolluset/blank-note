@@ -25,8 +25,8 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onMouseDown }: 
                 onMouseDown={onMouseDown(pp.id, (id) => trashPages.find((p) => p.id === id))}
               />
               <EditableArea
-                value={pp.page.content}
-                onChange={(v) => onEdit(pp.page.id, v)}
+                value={pp.content}
+                onChange={(v) => onEdit(pp.id, v)}
                 minHeightClass="min-h-[220px]"
               />
               <div className="mt-2 flex gap-2">
