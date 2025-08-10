@@ -1,15 +1,15 @@
 "use client"
 
 import type React from "react"
-import { TrashView, Navigation } from "../components"
+import { ListView, Navigation } from "../components"
 import { usePages, useDrag } from "../hooks"
 
-export default function TrashPage() {
+export default function ListPage() {
   // 페이지 관리 훅
   const {
-    trashPages,
+    loosePages,
     updateContent,
-    deleteForever,
+    discardFromList,
     updatePagePosition,
   } = usePages()
 
@@ -20,10 +20,10 @@ export default function TrashPage() {
     <main className="mx-auto max-w-5xl px-4 py-6 text-sm sm:text-base">
       <Navigation />
       
-      <TrashView
-        trashPages={trashPages}
+      <ListView
+        loosePages={loosePages}
         onEdit={updateContent}
-        onDeleteForever={deleteForever}
+        onDiscard={discardFromList}
         onMouseDown={drag.onMouseDown}
       />
     </main>
