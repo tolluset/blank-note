@@ -9,32 +9,81 @@ export function useNoteView(pages: Page[]) {
   // 펼침면 개수(파생)
   const totalSpreads = useMemo(() => Math.max(1, Math.ceil(pages.length / 2)), [pages.length])
 
-  // URL에서 spread 값을 가져와서 범위 보정까지 한 번에 처리
-  const urlSpreadParam = Number(searchParams.get('spread')) || 1
-  const urlSpreadRaw = Math.max(1, urlSpreadParam) - 1 // 내부적으로는 0-based로 변환
-  const urlSpread = Math.min(urlSpreadRaw, totalSpreads - 1) // 범위 보정
-  
-  const [spread, setSpreadState] = useState(urlSpread)
-
-  // spread 변경 시 URL 업데이트
-  const setSpread = useCallback((newSpread: number) => {
-    const params = new URLSearchParams(searchParams.toString())
-    const displaySpread = newSpread + 1 // 1-based로 변환
-    if (displaySpread === 1) {
-      params.delete('spread')
-    } else {
-      params.set('spread', displaySpread.toString())
+  // 초기값 결정: URL 파라미터 우선, 없으면 localStorage
+  const getInitialSpread = useCallback(() => {
+    if (typeof window === 'undefined') return 0
+    
+    // URL 파라미터 확인
+    const urlSpreadParam = Number(searchParams.get('spread'))
+    if (urlSpreadParam > 0) {
+      const urlSpread = Math.max(1, urlSpreadParam) - 1 // 0-based로 변환
+      return Math.min(urlSpread, totalSpreads - 1)
     }
-    const queryString = params.toString()
-    const newUrl = queryString ? `/?${queryString}` : '/'
-    router.push(newUrl, { scroll: false })
-    setSpreadState(newSpread)
-  }, [router, searchParams])
+    
+    // localStorage에서 가져오기
+    const stored = localStorage.getItem('noteSpread')
+    const parsed = stored ? parseInt(stored, 10) : 0
+    return Math.max(0, Math.min(parsed, totalSpreads - 1))
+  }, [searchParams, totalSpreads])
 
-  // URL 변경 시 내부 상태 동기화
+  const [spread, setSpreadState] = useState(() => getInitialSpread())
+
+  // spread 변경 시 URL과 localStorage 모두 업데이트
+  const setSpread = useCallback((newSpread: number) => {
+    const validSpread = Math.max(0, Math.min(newSpread, totalSpreads - 1))
+    setSpreadState(validSpread)
+    
+    if (typeof window !== 'undefined') {
+      // localStorage 업데이트
+      localStorage.setItem('noteSpread', validSpread.toString())
+      
+      // URL 업데이트
+      const params = new URLSearchParams(searchParams.toString())
+      const displaySpread = validSpread + 1 // 1-based로 변환
+      if (displaySpread === 1) {
+        params.delete('spread')
+      } else {
+        params.set('spread', displaySpread.toString())
+      }
+      const queryString = params.toString()
+      const newUrl = queryString ? `/?${queryString}` : '/'
+      router.push(newUrl, { scroll: false })
+    }
+  }, [totalSpreads, router, searchParams])
+
+  // URL 파라미터 변경 시 상태 동기화 (브라우저 뒤로가기/앞으로가기 대응)
   useEffect(() => {
-    setSpreadState(urlSpread)
-  }, [urlSpread])
+    const urlSpreadParam = Number(searchParams.get('spread'))
+    
+    if (urlSpreadParam > 0) {
+      // URL에 spread 파라미터가 있으면 그걸 사용
+      const urlSpread = Math.max(1, urlSpreadParam) - 1
+      const validSpread = Math.min(urlSpread, totalSpreads - 1)
+      if (validSpread !== spread) {
+        setSpreadState(validSpread)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('noteSpread', validSpread.toString())
+        }
+      }
+    } else {
+      // URL에 spread 파라미터가 없으면 localStorage에서 복원
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('noteSpread')
+        const storedSpread = stored ? parseInt(stored, 10) : 0
+        const validSpread = Math.max(0, Math.min(storedSpread, totalSpreads - 1))
+        if (validSpread !== spread) {
+          setSpreadState(validSpread)
+        }
+      }
+    }
+  }, [searchParams, totalSpreads, spread])
+
+  // totalSpreads 변경 시 spread 범위 재조정
+  useEffect(() => {
+    if (spread >= totalSpreads) {
+      setSpread(Math.max(0, totalSpreads - 1))
+    }
+  }, [totalSpreads, spread, setSpread])
 
   // 현재 펼침면 좌/우 페이지
   const left = pages[spread * 2]
