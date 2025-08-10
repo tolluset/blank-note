@@ -7,10 +7,11 @@ interface TrashViewProps {
   trashPages: PositionedPage[]
   onEdit: (pageId: string, content: string) => void
   onDeleteForever: (pid: string) => void
+  onRestore?: (pid: string) => void
   onMouseDown: (id: string, getPos: (id: string) => { x: number; y: number } | undefined) => (e: React.MouseEvent) => void
 }
 
-export function TrashView({ trashPages, onEdit, onDeleteForever, onMouseDown }: TrashViewProps) {
+export function TrashView({ trashPages, onEdit, onDeleteForever, onRestore, onMouseDown }: TrashViewProps) {
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-end">
@@ -19,9 +20,9 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onMouseDown }: 
       <div className="relative h-[560px] w-full overflow-auto rounded-lg border bg-neutral-50">
         <div className="absolute inset-0">
           {trashPages.map((pp) => (
-            <FreePageCard 
-              key={pp.id} 
-              x={pp.x} 
+            <FreePageCard
+              key={pp.id}
+              x={pp.x}
               y={pp.y}
               onMouseDown={onMouseDown(pp.id, (id) => {
                 const page = trashPages.find((p) => p.id === id)
@@ -30,7 +31,7 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onMouseDown }: 
             >
               <MovableHeader
                 title={"휴지통"}
-                onMouseDown={() => {}}
+                onMouseDown={() => { }}
               />
               <EditableArea
                 value={pp.content}
@@ -38,7 +39,7 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onMouseDown }: 
                 minHeightClass="min-h-[220px]"
                 onMouseDown={(e) => e.stopPropagation()}
               />
-              <div className="mt-2 flex gap-2" onMouseDown={(e) => e.stopPropagation()}>
+              <div className="mt-2 flex justify-between gap-2" onMouseDown={(e) => e.stopPropagation()}>
                 <Button
                   variant="destructive"
                   size="sm"
@@ -46,6 +47,17 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onMouseDown }: 
                 >
                   {"완전삭제"}
                 </Button>
+
+                {onRestore && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onRestore(pp.id)}
+                  >
+                    {"리스트로 복원"}
+                  </Button>
+                )}
+
               </div>
             </FreePageCard>
           ))}

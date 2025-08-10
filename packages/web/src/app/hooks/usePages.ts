@@ -155,6 +155,37 @@ export function usePages() {
     })
   }, [loosePages])
 
+  // 휴지통에서 리스트로 복원
+  const restoreToList = useCallback((pid: string) => {
+    const pageToRestore = trashPages.find((p) => p.id === pid)
+    if (!pageToRestore) return
+    
+    const restoredPage = {
+      id: pageToRestore.id,
+      content: pageToRestore.content,
+      x: 40 + Math.random() * 120,
+      y: 40 + Math.random() * 80,
+    }
+    
+    // 휴지통에서 제거
+    setTrashPages((prev) => prev.filter((p) => p.id !== pid))
+    
+    // 찢은 페이지 리스트에 추가
+    setLoosePages((prev) => {
+      const updatedLoose = [...prev, restoredPage]
+      
+      // 로컬스토리지 저장
+      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+      if (!token) {
+        const updatedTrash = trashPages.filter((p) => p.id !== pid)
+        localStorageAPI.saveTornNotes(updatedLoose)
+        localStorageAPI.saveTrashedNotes(updatedTrash)
+      }
+      
+      return updatedLoose
+    })
+  }, [trashPages])
+
   // 휴지통 완전 삭제
   const deleteForever = useCallback((pid: string) => {
     setTrashPages((prev) => {
@@ -204,6 +235,7 @@ export function usePages() {
     updateContent,
     tearPage,
     discardFromList,
+    restoreToList,
     deleteForever,
     updatePagePosition,
   }

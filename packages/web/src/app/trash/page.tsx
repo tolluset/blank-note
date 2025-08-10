@@ -10,6 +10,7 @@ export default function TrashPage() {
     trashPages,
     updateContent,
     deleteForever,
+    restoreToList,
     updatePagePosition,
   } = usePages()
 
@@ -24,6 +25,7 @@ export default function TrashPage() {
         trashPages={trashPages}
         onEdit={updateContent}
         onDeleteForever={deleteForever}
+        onRestore={restoreToList}
         onMouseDown={drag.onMouseDown}
       />
     </main>
