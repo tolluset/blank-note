@@ -1,10 +1,11 @@
 "use client"
 
 import type React from "react"
+import { Suspense } from "react"
 import { NoteView, Navigation } from "./components"
 import { usePages, useNoteView } from "./hooks"
 
-export default function Page() {
+function PageContent() {
   // 페이지 관리 훅
   const {
     pages,
@@ -35,5 +36,13 @@ export default function Page() {
         pagesCount={pages.length}
       />
     </main>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PageContent />
+    </Suspense>
   )
 }

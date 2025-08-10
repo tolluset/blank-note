@@ -10,7 +10,7 @@ export class NotesAPI {
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = this.getAuthToken()
-    
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ export class NotesAPI {
     return this.request<PositionedPage[]>('/notes/trashed')
   }
 
-  async updateNote(pageId: string, data: any) {
+  async updateNote(pageId: string, data: Partial<Page>) {
     return this.request(`/notes/${pageId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),

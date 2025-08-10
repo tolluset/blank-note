@@ -17,7 +17,7 @@ export function usePages() {
   useEffect(() => {
     const loadData = async () => {
       const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-      
+
       if (token) {
         // 로그인된 사용자: API 사용
         try {
@@ -39,7 +39,7 @@ export function usePages() {
         // 비로그인 사용자: 로컬스토리지 사용
         loadFromLocalStorage()
       }
-      
+
       setLoading(false)
     }
 
@@ -47,7 +47,7 @@ export function usePages() {
       const notesData = localStorageAPI.getNotes()
       const tornData = localStorageAPI.getTornNotes()
       const trashedData = localStorageAPI.getTrashedNotes()
-      
+
       setPages(notesData)
       setLoosePages(tornData)
       setTrashPages(trashedData)
@@ -76,7 +76,7 @@ export function usePages() {
     const timer = setTimeout(async () => {
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-        
+
         if (token) {
           // 로그인된 사용자: API 사용
           await notesAPI.updateNote(pageId, { content })
@@ -102,21 +102,21 @@ export function usePages() {
   const tearPage = useCallback((pageId: string) => {
     const pageToTear = pages.find((p) => p.id === pageId)
     if (!pageToTear) return
-    
+
     const newTornPage = {
       id: uid(),
       content: pageToTear.content,
       x: 40 + Math.random() * 120,
       y: 40 + Math.random() * 80,
     }
-    
+
     // 원본에서 제거
     setPages((prev) => prev.filter((p) => p.id !== pageId))
-    
+
     // 찢어진 페이지에 추가
     setLoosePages((prev) => {
       const updatedLoose = [...prev, newTornPage]
-      
+
       // 로컬스토리지 저장
       const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
       if (!token) {
@@ -124,7 +124,7 @@ export function usePages() {
         localStorageAPI.saveNotes(updatedPages)
         localStorageAPI.saveTornNotes(updatedLoose)
       }
-      
+
       return updatedLoose
     })
   }, [pages])
@@ -133,16 +133,16 @@ export function usePages() {
   const discardFromList = useCallback((pid: string) => {
     const pageToDiscard = loosePages.find((p) => p.id === pid)
     if (!pageToDiscard) return
-    
+
     const newTrashPage = { ...pageToDiscard, x: 60, y: 60 }
-    
+
     // loose pages에서 제거
     setLoosePages((prev) => prev.filter((p) => p.id !== pid))
-    
+
     // trash에 추가
     setTrashPages((prev) => {
       const updatedTrash = [...prev, newTrashPage]
-      
+
       // 로컬스토리지 저장
       const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
       if (!token) {
@@ -150,7 +150,7 @@ export function usePages() {
         localStorageAPI.saveTornNotes(updatedLoose)
         localStorageAPI.saveTrashedNotes(updatedTrash)
       }
-      
+
       return updatedTrash
     })
   }, [loosePages])
@@ -159,21 +159,21 @@ export function usePages() {
   const restoreToList = useCallback((pid: string) => {
     const pageToRestore = trashPages.find((p) => p.id === pid)
     if (!pageToRestore) return
-    
+
     const restoredPage = {
       id: pageToRestore.id,
       content: pageToRestore.content,
       x: 40 + Math.random() * 120,
       y: 40 + Math.random() * 80,
     }
-    
+
     // 휴지통에서 제거
     setTrashPages((prev) => prev.filter((p) => p.id !== pid))
-    
+
     // 찢은 페이지 리스트에 추가
     setLoosePages((prev) => {
       const updatedLoose = [...prev, restoredPage]
-      
+
       // 로컬스토리지 저장
       const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
       if (!token) {
@@ -181,7 +181,7 @@ export function usePages() {
         localStorageAPI.saveTornNotes(updatedLoose)
         localStorageAPI.saveTrashedNotes(updatedTrash)
       }
-      
+
       return updatedLoose
     })
   }, [trashPages])
@@ -190,13 +190,13 @@ export function usePages() {
   const deleteForever = useCallback((pid: string) => {
     setTrashPages((prev) => {
       const updatedTrash = prev.filter((p) => p.id !== pid)
-      
+
       // 로컬스토리지 저장
       const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
       if (!token) {
         localStorageAPI.saveTrashedNotes(updatedTrash)
       }
-      
+
       return updatedTrash
     })
   }, [])
@@ -205,24 +205,24 @@ export function usePages() {
   const updatePagePosition = useCallback((id: string, x: number, y: number) => {
     setLoosePages((prev) => {
       const updated = prev.map((p) => (p.id === id ? { ...p, x, y } : p))
-      
+
       // 로컬스토리지 저장 (변경이 있을 때만)
       const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
       if (!token && updated !== prev) {
         localStorageAPI.saveTornNotes(updated)
       }
-      
+
       return updated
     })
     setTrashPages((prev) => {
       const updated = prev.map((p) => (p.id === id ? { ...p, x, y } : p))
-      
+
       // 로컬스토리지 저장 (변경이 있을 때만)
       const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
       if (!token && updated !== prev) {
         localStorageAPI.saveTrashedNotes(updated)
       }
-      
+
       return updated
     })
   }, [])
@@ -231,13 +231,13 @@ export function usePages() {
   const add100Notes = useCallback(async () => {
     const currentCount = pages.length
     const needed = Math.max(0, 100 - currentCount)
-    
+
     if (needed > 0) {
       const newPages = Array.from({ length: needed }, () => ({ id: uid(), content: "" }))
       const updatedPages = [...pages, ...newPages]
-      
+
       setPages(updatedPages)
-      
+
       const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
       if (!token) {
         // 비로그인 사용자: 로컬스토리지에 저장

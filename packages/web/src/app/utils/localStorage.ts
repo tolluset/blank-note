@@ -1,5 +1,4 @@
 import type { Page, PositionedPage } from "../types"
-import { uid } from "../utils"
 
 const STORAGE_KEYS = {
   NOTES: 'blank-note-pages',
