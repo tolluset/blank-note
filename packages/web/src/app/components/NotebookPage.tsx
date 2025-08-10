@@ -1,5 +1,5 @@
 import type React from "react"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import type { Page } from "../types"
 import { Scissors } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,8 @@ interface NotebookPageProps {
 }
 
 export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps) {
+  const [isFocused, setIsFocused] = useState(false);
+  
   const linedStyle = useMemo(
     () => ({
       backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 23px, #e5e7eb 24px)",
@@ -39,9 +41,11 @@ export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps)
         {page ? (
           <textarea
             className="h-[280px] w-full resize-none bg-transparent p-2 outline-none"
-            placeholder="여기에 직접 입력하세요..."
+            placeholder={isFocused ? "여기에 직접 입력하세요..." : ""}
             value={page.content}
             onChange={(e) => onEdit(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             style={{
               lineHeight: '24px',
               ...linedStyle
