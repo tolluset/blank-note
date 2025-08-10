@@ -1,6 +1,7 @@
 import type React from "react"
 import type { PositionedPage } from "../types"
 import { EditableArea, FreePageCard, MovableHeader } from "./"
+import { Button } from "@/components/ui/button"
 
 interface ListViewProps {
   loosePages: PositionedPage[]
@@ -29,12 +30,13 @@ export function ListView({ loosePages, onEdit, onDiscard, onMouseDown }: ListVie
                 minHeightClass="min-h-[220px]"
               />
               <div className="mt-2 flex gap-2">
-                <button
-                  className="rounded border bg-white px-2 py-1 text-xs hover:bg-neutral-100"
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => onDiscard(pp.id)}
                 >
                   {"버리기"}
-                </button>
+                </Button>
               </div>
             </FreePageCard>
           ))}

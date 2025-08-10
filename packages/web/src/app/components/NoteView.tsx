@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Page } from "../types"
 import { NotebookPage } from "./NotebookPage"
+import { Button } from "@/components/ui/button"
 
 interface NoteViewProps {
   pages: Page[]
@@ -29,23 +30,25 @@ export function NoteView({
     <section className="group relative rounded-lg border bg-white p-3 shadow-sm">
       <div className="mb-2 flex items-center justify-end">
         <div className="flex items-center gap-2">
-          <button
-            className="rounded border px-2 py-1 hover:bg-neutral-50 disabled:opacity-50"
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => onSpreadChange(Math.max(0, spread - 1))}
             disabled={spread === 0}
             aria-label="이전 펼침면"
           >
             {"← 이전"}
-          </button>
+          </Button>
           <div className="text-xs text-neutral-500">{`${spread + 1} / ${totalSpreads}`}</div>
-          <button
-            className="rounded border px-2 py-1 hover:bg-neutral-50 disabled:opacity-50"
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => onSpreadChange(Math.min(totalSpreads - 1, spread + 1))}
             disabled={spread >= totalSpreads - 1}
             aria-label="다음 펼침면"
           >
             {"다음 →"}
-          </button>
+          </Button>
         </div>
       </div>
 

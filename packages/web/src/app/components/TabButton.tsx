@@ -1,4 +1,5 @@
 import type React from "react"
+import { Button } from "@/components/ui/button"
 
 interface TabButtonProps {
   active?: boolean
@@ -8,11 +9,13 @@ interface TabButtonProps {
 
 export function TabButton({ active, onClick, children }: TabButtonProps) {
   return (
-    <button
-      className={`rounded px-3 py-1 text-sm ${active ? "bg-black text-white" : "text-neutral-700 hover:bg-neutral-100"}`}
+    <Button
+      variant={active ? "default" : "ghost"}
+      size="sm"
       onClick={onClick}
+      className="rounded px-3 py-1 text-sm"
     >
       {children}
-    </button>
+    </Button>
   )
 } 

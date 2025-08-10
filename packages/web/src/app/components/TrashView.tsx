@@ -1,6 +1,7 @@
 import type React from "react"
 import type { PositionedPage } from "../types"
 import { EditableArea, FreePageCard, MovableHeader } from "./"
+import { Button } from "@/components/ui/button"
 
 interface TrashViewProps {
   trashPages: PositionedPage[]
@@ -29,12 +30,13 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onMouseDown }: 
                 minHeightClass="min-h-[220px]"
               />
               <div className="mt-2 flex gap-2">
-                <button
-                  className="rounded border border-red-200 bg-white px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+                <Button
+                  variant="destructive"
+                  size="sm"
                   onClick={() => onDeleteForever(pp.id)}
                 >
                   {"완전삭제"}
-                </button>
+                </Button>
               </div>
             </FreePageCard>
           ))}

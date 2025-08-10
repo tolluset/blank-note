@@ -1,5 +1,6 @@
 import type React from "react"
 import { useMemo } from "react"
+import { Textarea } from "@/components/ui/textarea"
 
 interface EditableAreaProps {
   value: string
@@ -15,9 +16,9 @@ export function EditableArea({ value, onChange, minHeightClass = "min-h-[200px]"
     [],
   )
   return (
-    <div className={`rounded-md border bg-white ${minHeightClass}`} style={linedStyle as React.CSSProperties}>
-      <textarea
-        className="h-full min-h-[inherit] w-full resize-none bg-transparent p-2 outline-none"
+    <div className={`rounded-md ${minHeightClass}`} style={linedStyle as React.CSSProperties}>
+      <Textarea
+        className="h-full min-h-[inherit] w-full resize-none bg-transparent border-none outline-none shadow-none focus-visible:ring-0"
         placeholder="여기에 직접 입력하세요..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
