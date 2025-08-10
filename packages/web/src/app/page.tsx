@@ -1,14 +1,11 @@
 "use client"
 
 import type React from "react"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-
-type Page = { id: string; content: string }
-type PositionedPage = { id: string; page: Page; x: number; y: number }
-
-function uid() {
-  return Math.random().toString(36).slice(2, 9)
-}
+import { useCallback, useEffect, useMemo, useState } from "react"
+import type { Page, PositionedPage, View } from "./types"
+import { uid } from "./utils"
+import { useDrag } from "./hooks/useDrag"
+import { TabButton, NoteView, ListView, TrashView } from "./components"
 
 export default function Page() {
   // 노트북 내부 페이지(순서 유지)
@@ -24,7 +21,7 @@ export default function Page() {
   const [trashPages, setTrashPages] = useState<PositionedPage[]>([])
 
   // 뷰 탭: note | list | trash
-  const [view, setView] = useState<"note" | "list" | "trash">("note")
+  const [view, setView] = useState<View>("note")
 
   // 노트에서 현재 펼침면 인덱스
   const [spread, setSpread] = useState(0)
@@ -84,42 +81,21 @@ export default function Page() {
     setTrashPages((prev) => prev.filter((p) => p.id !== pid))
   }, [])
 
-  // 리스트/휴지통 내 드래그 이동 (헤더에서만 시작)
-  const useDrag = () => {
-    const dragging = useRef<{ id: string; offX: number; offY: number } | null>(null)
-
-    const onMouseDown =
-      (id: string, getPos: (id: string) => { x: number; y: number } | undefined) => (e: React.MouseEvent) => {
-        const pos = getPos(id)
-        if (!pos) return
-        dragging.current = {
-          id,
-          offX: e.clientX - pos.x,
-          offY: e.clientY - pos.y,
-        }
-        window.addEventListener("mousemove", onMouseMove)
-        window.addEventListener("mouseup", onMouseUp)
-      }
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (!dragging.current) return
-      const { id, offX, offY } = dragging.current
-      const x = e.clientX - offX
-      const y = e.clientY - offY
-      setLoosePages((prev) => prev.map((p) => (p.id === id ? { ...p, x, y } : p)))
-      setTrashPages((prev) => prev.map((p) => (p.id === id ? { ...p, x, y } : p)))
-    }
-
-    const onMouseUp = () => {
-      dragging.current = null
-      window.removeEventListener("mousemove", onMouseMove)
-      window.removeEventListener("mouseup", onMouseUp)
-    }
-
-    return { onMouseDown }
-  }
-
+  // 드래그 관련 훅
   const drag = useDrag()
+
+  // 드래그 콜백 설정
+  useEffect(() => {
+    window.dragCallbacks = {
+      updatePosition: (id: string, x: number, y: number) => {
+        setLoosePages((prev) => prev.map((p) => (p.id === id ? { ...p, x, y } : p)))
+        setTrashPages((prev) => prev.map((p) => (p.id === id ? { ...p, x, y } : p)))
+      },
+    }
+    return () => {
+      delete window.dragCallbacks
+    }
+  }, [])
 
   // 표시용: 페이지 번호
   const pageNumber = useCallback((p: Page | undefined) => (p ? pages.findIndex((x) => x.id === p.id) + 1 : 0), [pages])
@@ -141,235 +117,36 @@ export default function Page() {
       </header>
 
       {view === "note" && (
-        <section className="group relative rounded-lg border bg-white p-3 shadow-sm">
-          <div className="mb-2 flex items-center justify-end">
-            <div className="flex items-center gap-2">
-              <button
-                className="rounded border px-2 py-1 hover:bg-neutral-50 disabled:opacity-50"
-                onClick={() => setSpread((s) => Math.max(0, s - 1))}
-                disabled={spread === 0}
-                aria-label="이전 펼침면"
-              >
-                {"← 이전"}
-              </button>
-              <div className="text-xs text-neutral-500">{`${spread + 1} / ${totalSpreads}`}</div>
-              <button
-                className="rounded border px-2 py-1 hover:bg-neutral-50 disabled:opacity-50"
-                onClick={() => setSpread((s) => Math.min(totalSpreads - 1, s + 1))}
-                disabled={spread >= totalSpreads - 1}
-                aria-label="다음 펼침면"
-              >
-                {"다음 →"}
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <NotebookPage
-              label={`#${left ? pageNumber(left) : "-"}`}
-              page={left}
-              onEdit={(val) => left && updateContent(left.id, val)}
-              onTear={() => left && tearPage(left.id)}
-            />
-            <NotebookPage
-              label={`#${right ? pageNumber(right) : "-"}`}
-              page={right}
-              onEdit={(val) => right && updateContent(right.id, val)}
-              onTear={() => right && tearPage(right.id)}
-            />
-          </div>
-
-        </section>
+        <NoteView
+          pages={pages}
+          spread={spread}
+          totalSpreads={totalSpreads}
+          left={left}
+          right={right}
+          pageNumber={pageNumber}
+          onSpreadChange={setSpread}
+          onEdit={updateContent}
+          onTear={tearPage}
+        />
       )}
 
       {view === "list" && (
-        <section className="space-y-2">
-          <div className="flex items-center justify-end">
-            <div className="text-xs text-neutral-500">{`${loosePages.length}장`}</div>
-          </div>
-          <div className="relative h-[560px] w-full overflow-auto rounded-lg border bg-neutral-50">
-            <div className="absolute inset-0">
-              {loosePages.map((pp) => (
-                <FreePageCard key={pp.id} x={pp.x} y={pp.y}>
-                  <MovableHeader
-                    title={"페이지"}
-                    onMouseDown={drag.onMouseDown(pp.id, (id) => loosePages.find((p) => p.id === id))}
-                  />
-                  <EditableArea
-                    value={pp.page.content}
-                    onChange={(v) => updateContent(pp.page.id, v)}
-                    minHeightClass="min-h-[220px]"
-                  />
-                  <div className="mt-2 flex gap-2">
-                    <button
-                      className="rounded border bg-white px-2 py-1 text-xs hover:bg-neutral-100"
-                      onClick={() => discardFromList(pp.id)}
-                    >
-                      {"버리기"}
-                    </button>
-                  </div>
-                </FreePageCard>
-              ))}
-            </div>
-          </div>
-        </section>
+        <ListView
+          loosePages={loosePages}
+          onEdit={updateContent}
+          onDiscard={discardFromList}
+          onMouseDown={drag.onMouseDown}
+        />
       )}
 
       {view === "trash" && (
-        <section className="space-y-2">
-          <div className="flex items-center justify-end">
-            <div className="text-xs text-neutral-500">{`${trashPages.length}장`}</div>
-          </div>
-          <div className="relative h-[560px] w-full overflow-auto rounded-lg border bg-neutral-50">
-            <div className="absolute inset-0">
-              {trashPages.map((pp) => (
-                <FreePageCard key={pp.id} x={pp.x} y={pp.y}>
-                  <MovableHeader
-                    title={"휴지통"}
-                    onMouseDown={drag.onMouseDown(pp.id, (id) => trashPages.find((p) => p.id === id))}
-                  />
-                  <EditableArea
-                    value={pp.page.content}
-                    onChange={(v) => updateContent(pp.page.id, v)}
-                    minHeightClass="min-h-[220px]"
-                  />
-                  <div className="mt-2 flex gap-2">
-                    <button
-                      className="rounded border border-red-200 bg-white px-2 py-1 text-xs text-red-600 hover:bg-red-50"
-                      onClick={() => deleteForever(pp.id)}
-                    >
-                      {"완전삭제"}
-                    </button>
-                  </div>
-                </FreePageCard>
-              ))}
-            </div>
-          </div>
-        </section>
+        <TrashView
+          trashPages={trashPages}
+          onEdit={updateContent}
+          onDeleteForever={deleteForever}
+          onMouseDown={drag.onMouseDown}
+        />
       )}
     </main>
-  )
-}
-
-function TabButton({
-  active,
-  onClick,
-  children,
-}: {
-  active?: boolean
-  onClick?: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      className={`rounded px-3 py-1 text-sm ${active ? "bg-black text-white" : "text-neutral-700 hover:bg-neutral-100"}`}
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  )
-}
-
-function NotebookPage({
-  label,
-  page,
-  onEdit,
-  onTear,
-}: {
-  label: string
-  page?: Page
-  onEdit: (value: string) => void
-  onTear: () => void
-}) {
-  const linedStyle = useMemo(
-    () => ({
-      backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 23px, #e5e7eb 24px)",
-    }),
-    [],
-  )
-
-  return (
-    <div className="relative rounded-lg border bg-white p-3 shadow-sm">
-      <div className="mb-2 flex items-center justify-between">
-        <div className="text-xs text-neutral-500">{label}</div>
-        <div className="flex gap-2">
-          <button
-            className="rounded border px-2 py-1 text-xs hover:bg-neutral-50 disabled:opacity-50"
-            onClick={onTear}
-            disabled={!page}
-          >
-            {"페이지 찢기"}
-          </button>
-        </div>
-      </div>
-
-      <div className="rounded-md border" style={linedStyle as React.CSSProperties} aria-label="노트 페이지">
-        {page ? (
-          <textarea
-            className="h-[280px] w-full resize-none bg-transparent p-2 outline-none"
-            placeholder="여기에 직접 입력하세요..."
-            value={page.content}
-            onChange={(e) => onEdit(e.target.value)}
-          />
-        ) : (
-          <div className="p-2 text-neutral-400">{"빈 페이지"}</div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function EditableArea({
-  value,
-  onChange,
-  minHeightClass = "min-h-[200px]",
-}: {
-  value: string
-  onChange: (v: string) => void
-  minHeightClass?: string
-}) {
-  const linedStyle = useMemo(
-    () => ({
-      backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 23px, #e5e7eb 24px)",
-    }),
-    [],
-  )
-  return (
-    <div className={`rounded-md border bg-white ${minHeightClass}`} style={linedStyle as React.CSSProperties}>
-      <textarea
-        className="h-full min-h-[inherit] w-full resize-none bg-transparent p-2 outline-none"
-        placeholder="여기에 직접 입력하세요..."
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    </div>
-  )
-}
-
-function FreePageCard({ x, y, children }: { x: number; y: number; children: React.ReactNode }) {
-  return (
-    <div
-      className="absolute w-[320px] rounded-lg border bg-white p-2 shadow-sm"
-      style={{ left: x, top: y }}
-      aria-label="자유 배치 페이지"
-    >
-      {children}
-    </div>
-  )
-}
-
-function MovableHeader({ title, onMouseDown }: { title: string; onMouseDown: (e: React.MouseEvent) => void }) {
-  return (
-    <div className="mb-2 flex items-center justify-between">
-      <div
-        className="cursor-move select-none rounded px-1 text-xs text-neutral-500"
-        onMouseDown={onMouseDown}
-        aria-label="끌어서 이동"
-        title="끌어서 이동"
-      >
-        {title}
-      </div>
-      <div className="text-[10px] text-neutral-400">{"드래그로 이동"}</div>
-    </div>
   )
 }
