@@ -1,48 +1,18 @@
-"use client"
-
 import type React from "react"
-import { Suspense } from "react"
-import { NoteView, Navigation } from "./components"
-import { usePages, useNoteView } from "./hooks"
+import { Navigation } from "./components"
+import { PageContentWrapper } from "./components/PageContentWrapper"
 
-function PageContent() {
-  // 페이지 관리 훅
-  const {
-    pages,
-    loading,
-    updateContent,
-    tearPage,
-    add100Notes,
-  } = usePages()
+interface PageProps {
+  searchParams: Promise<{ spread?: string }>
+}
 
-  // 노트 뷰 관련 훅
-  const { spread, totalSpreads, left, right, pageNumber, setSpread } = useNoteView(pages)
-
+export default async function Page({ searchParams }: PageProps) {
+  const params = await searchParams
+  
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 text-sm sm:text-base">
       <Navigation />
-
-      <NoteView
-        spread={spread}
-        totalSpreads={totalSpreads}
-        left={left}
-        right={right}
-        isLoading={loading}
-        pageNumber={pageNumber}
-        onSpreadChange={setSpread}
-        onEdit={updateContent}
-        onTear={tearPage}
-        onAdd100Notes={add100Notes}
-        pagesCount={pages.length}
-      />
+      <PageContentWrapper initialSpread={params.spread} />
     </main>
-  )
-}
-
-export default function Page() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <PageContent />
-    </Suspense>
   )
 }

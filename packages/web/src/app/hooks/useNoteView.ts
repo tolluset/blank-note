@@ -2,29 +2,31 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import type { Page } from "../types"
 
-export function useNoteView(pages: Page[]) {
+export function useNoteView(pages: Page[], initialSpreadParam?: string) {
   const router = useRouter()
   const searchParams = useSearchParams()
   
   // 펼침면 개수(파생)
   const totalSpreads = useMemo(() => Math.max(1, Math.ceil(pages.length / 2)), [pages.length])
 
-  // 초기값 결정: URL 파라미터 우선, 없으면 localStorage
+  // 초기값 결정: props 우선, 없으면 localStorage
   const getInitialSpread = useCallback(() => {
     if (typeof window === 'undefined') return 0
     
-    // URL 파라미터 확인
-    const urlSpreadParam = Number(searchParams.get('spread'))
-    if (urlSpreadParam > 0) {
-      const urlSpread = Math.max(1, urlSpreadParam) - 1 // 0-based로 변환
-      return Math.min(urlSpread, totalSpreads - 1)
+    // props로 받은 초기 파라미터 확인
+    if (initialSpreadParam) {
+      const urlSpreadParam = Number(initialSpreadParam)
+      if (urlSpreadParam > 0) {
+        const urlSpread = Math.max(1, urlSpreadParam) - 1 // 0-based로 변환
+        return Math.min(urlSpread, totalSpreads - 1)
+      }
     }
     
     // localStorage에서 가져오기
     const stored = localStorage.getItem('noteSpread')
     const parsed = stored ? parseInt(stored, 10) : 0
     return Math.max(0, Math.min(parsed, totalSpreads - 1))
-  }, [searchParams, totalSpreads])
+  }, [initialSpreadParam, totalSpreads])
 
   const [spread, setSpreadState] = useState(() => getInitialSpread())
 
