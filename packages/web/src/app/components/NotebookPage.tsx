@@ -36,19 +36,15 @@ export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps)
 
       <div className="rounded-md border" aria-label="노트 페이지">
         {page ? (
-          <div
-            className="h-[280px] w-full resize-none p-2 outline-none overflow-auto"
+          <textarea
+            className="h-[280px] w-full resize-none bg-transparent p-2 outline-none"
+            placeholder="여기에 직접 입력하세요..."
+            value={page.content}
+            onChange={(e) => onEdit(e.target.value)}
             style={{
               lineHeight: '24px',
-              background: 'transparent',
-              whiteSpace: 'pre-wrap',
-              wordWrap: 'break-word',
               ...linedStyle
             }}
-            contentEditable
-            suppressContentEditableWarning
-            onInput={(e) => onEdit(e.currentTarget.textContent || '')}
-            dangerouslySetInnerHTML={{ __html: page.content }}
           />
         ) : (
           <div className="p-2 text-neutral-400">{"빈 페이지"}</div>
