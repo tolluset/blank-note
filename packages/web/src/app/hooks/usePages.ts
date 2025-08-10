@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, useRef } from "react"
 import type { Page, PositionedPage } from "../types"
 import { uid } from "../utils"
 import { notesAPI } from "../api"
@@ -42,19 +42,34 @@ export function usePages() {
     loadData()
   }, [])
 
+  // debounce를 위한 ref
+  const debounceTimers = useRef<Map<string, NodeJS.Timeout>>(new Map())
+
   // 공통 유틸: 특정 페이지 내용 업데이트(현재 위치에 따라 pages/loose/trash 중 해당하는 곳에서 반영)
   const updateContent = useCallback(async (pageId: string, content: string) => {
     // 로컬 상태 즉시 업데이트
     setPages((prev) => prev.map((p) => (p.id === pageId ? { ...p, content } : p)))
-    setLoosePages((prev) => prev.map((pp) => (pp.page.id === pageId ? { ...pp, page: { ...pp.page, content } } : pp)))
-    setTrashPages((prev) => prev.map((pp) => (pp.page.id === pageId ? { ...pp, page: { ...pp.page, content } } : pp)))
+    setLoosePages((prev) => prev.map((pp) => (pp.id === pageId ? { ...pp, page: { ...pp.page, content } } : pp)))
+    setTrashPages((prev) => prev.map((pp) => (pp.id === pageId ? { ...pp, page: { ...pp.page, content } } : pp)))
 
-    // 서버에 업데이트
-    try {
-      await notesAPI.updateNote(pageId, { content })
-    } catch (error) {
-      console.error('Failed to update note:', error)
+    // 기존 타이머 제거
+    const existingTimer = debounceTimers.current.get(pageId)
+    if (existingTimer) {
+      clearTimeout(existingTimer)
     }
+
+    // 새로운 debounced 서버 업데이트
+    const timer = setTimeout(async () => {
+      try {
+        await notesAPI.updateNote(pageId, { content })
+      } catch (error) {
+        console.error('Failed to update note:', error)
+      } finally {
+        debounceTimers.current.delete(pageId)
+      }
+    }, 500)
+
+    debounceTimers.current.set(pageId, timer)
   }, [])
 
   // 찢기: 노트 → 페이지 리스트로 이동
