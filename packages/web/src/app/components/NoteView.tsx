@@ -93,6 +93,15 @@ export function NoteView({
                 onEdit={(val) => onEdit(right.id, val)}
                 onTear={() => onTear(right.id)}
               />
+            ) : isLoading ? (
+              // 로딩 중일 때 스켈레톤 표시
+              <div className="relative rounded-lg border bg-white p-3 shadow-sm animate-pulse">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="h-3 w-16 bg-gray-200 rounded"></div>
+                  <div className="h-8 w-20 bg-gray-200 rounded"></div>
+                </div>
+                <div className="rounded-md border h-[280px] bg-gray-50"></div>
+              </div>
             ) : (
               // right 페이지가 없을 때 100개로 채우기 버튼 표시
               <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-8 min-h-[400px]">
