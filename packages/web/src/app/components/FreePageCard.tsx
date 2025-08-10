@@ -11,7 +11,7 @@ interface FreePageCardProps {
 export function FreePageCard({ x, y, children, onMouseDown }: FreePageCardProps) {
   return (
     <Card
-      className="absolute w-[320px] p-2"
+      className="absolute w-[320px] p-2 cursor-move"
       style={{ left: x, top: y }}
       aria-label="자유 배치 페이지"
       onMouseDown={onMouseDown}

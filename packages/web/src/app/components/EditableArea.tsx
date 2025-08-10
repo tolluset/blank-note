@@ -17,7 +17,7 @@ export function EditableArea({ value, onChange, minHeightClass = "min-h-[200px]"
     [],
   )
   return (
-    <div className={`rounded-md ${minHeightClass}`} style={linedStyle as React.CSSProperties} onMouseDown={onMouseDown}>
+    <div className={`rounded-md ${minHeightClass} cursor-text`} style={linedStyle as React.CSSProperties} onMouseDown={onMouseDown}>
       <Textarea
         className="h-full min-h-[inherit] w-full resize-none bg-transparent border-none outline-none shadow-none focus-visible:ring-0"
         placeholder="여기에 직접 입력하세요..."
