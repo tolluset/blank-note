@@ -1,0 +1,42 @@
+# 루트 공통
+node_modules/
+.pnpm-store/
+.pnp.*
+.vscode/
+.DS_Store
+dist/
+build/
+*.log
+.env
+.env.local
+.env.*.local
+
+# pnpm 관련
+.pnpm-debug.log*
+
+# Next.js 빌드 아웃풋
+.next/
+out/
+
+# Hono / 백엔드 빌드 아웃풋
+dist/
+
+# 패키지별 node_modules (패키지마다 있을 수 있음)
+packages/**/node_modules/
+
+# 터보레포 관련 캐시
+.turbo/
+
+# OS별 파일
+*.DS_Store
+Thumbs.db
+
+# 테스트 커버리지
+coverage/
+
+# 잠재적 IDE 파일
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
