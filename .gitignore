@@ -20,6 +20,7 @@ out/
 
 # Hono / 백엔드 빌드 아웃풋
 dist/
+packages/server/**/*.js
 
 # 패키지별 node_modules (패키지마다 있을 수 있음)
 packages/**/node_modules/
