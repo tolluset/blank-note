@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button"
 interface NotebookPageProps {
   label: string
   page?: Page
+  isLoading?: boolean
   onEdit: (value: string) => void
   onTear: () => void
 }
 
-export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps) {
+export function NotebookPage({ label, page, isLoading, onEdit, onTear }: NotebookPageProps) {
   const [isFocused, setIsFocused] = useState(false);
   
   const linedStyle = useMemo(
@@ -23,7 +24,7 @@ export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps)
     [],
   )
 
-  if (!page) {
+  if (isLoading) {
     return (
       <div className="relative rounded-lg border bg-white p-3 shadow-sm animate-pulse">
         <div className="mb-2 flex items-center justify-between">
@@ -33,6 +34,10 @@ export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps)
         <div className="rounded-md border h-[280px] bg-gray-50"></div>
       </div>
     );
+  }
+
+  if (!page) {
+    return null;
   }
 
   return (

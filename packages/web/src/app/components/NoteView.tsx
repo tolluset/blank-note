@@ -4,11 +4,11 @@ import { NotebookPage } from "./NotebookPage"
 import { Button } from "@/components/ui/button"
 
 interface NoteViewProps {
-  pages: Page[]
   spread: number
   totalSpreads: number
   left?: Page
   right?: Page
+  isLoading?: boolean
   pageNumber: (p: Page | undefined) => number
   onSpreadChange: (spread: number) => void
   onEdit: (pageId: string, content: string) => void
@@ -16,11 +16,11 @@ interface NoteViewProps {
 }
 
 export function NoteView({
-  pages,
   spread,
   totalSpreads,
   left,
   right,
+  isLoading,
   pageNumber,
   onSpreadChange,
   onEdit,
@@ -56,12 +56,14 @@ export function NoteView({
         <NotebookPage
           label={`#${left ? pageNumber(left) : "-"}`}
           page={left}
+          isLoading={isLoading}
           onEdit={(val) => left && onEdit(left.id, val)}
           onTear={() => left && onTear(left.id)}
         />
         <NotebookPage
           label={`#${right ? pageNumber(right) : "-"}`}
           page={right}
+          isLoading={isLoading}
           onEdit={(val) => right && onEdit(right.id, val)}
           onTear={() => right && onTear(right.id)}
         />

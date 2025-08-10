@@ -8,6 +8,7 @@ export default function Page() {
   // 페이지 관리 훅
   const {
     pages,
+    loading,
     updateContent,
     tearPage,
   } = usePages()
@@ -18,13 +19,13 @@ export default function Page() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 text-sm sm:text-base">
       <Navigation />
-      
+
       <NoteView
-        pages={pages}
         spread={spread}
         totalSpreads={totalSpreads}
         left={left}
         right={right}
+        isLoading={loading}
         pageNumber={pageNumber}
         onSpreadChange={setSpread}
         onEdit={updateContent}
