@@ -13,6 +13,8 @@ export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps)
   const linedStyle = useMemo(
     () => ({
       backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 23px, #e5e7eb 24px)",
+      backgroundPosition: "0 12px",
+      backgroundAttachment: "local"
     }),
     [],
   )
@@ -32,13 +34,21 @@ export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps)
         </div>
       </div>
 
-      <div className="rounded-md border" style={linedStyle as React.CSSProperties} aria-label="노트 페이지">
+      <div className="rounded-md border" aria-label="노트 페이지">
         {page ? (
-          <textarea
-            className="h-[280px] w-full resize-none bg-transparent p-2 outline-none"
-            placeholder="여기에 직접 입력하세요..."
-            value={page.content}
-            onChange={(e) => onEdit(e.target.value)}
+          <div
+            className="h-[280px] w-full resize-none p-2 outline-none overflow-auto"
+            style={{
+              lineHeight: '24px',
+              background: 'transparent',
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
+              ...linedStyle
+            }}
+            contentEditable
+            suppressContentEditableWarning
+            onInput={(e) => onEdit(e.currentTarget.textContent || '')}
+            dangerouslySetInnerHTML={{ __html: page.content }}
           />
         ) : (
           <div className="p-2 text-neutral-400">{"빈 페이지"}</div>
@@ -46,4 +56,5 @@ export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps)
       </div>
     </div>
   )
-} 
+}
+
