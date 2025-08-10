@@ -126,7 +126,7 @@ export default function Page() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 text-sm sm:text-base">
-      <header className="mb-4 flex items-center justify-between">
+      <header className="mb-4 flex items-center justify-end">
         <div className="flex gap-1 rounded-lg border p-1">
           <TabButton active={view === "note"} onClick={() => setView("note")}>
             노트
