@@ -73,7 +73,7 @@ export const localStorageAPI = {
     const tornNotes = this.getTornNotes()
     const tornIndex = tornNotes.findIndex(n => n.id === pageId)
     if (tornIndex !== -1) {
-      tornNotes[tornIndex].page.content = content
+      tornNotes[tornIndex].content = content
       localStorage.setItem(STORAGE_KEYS.TORN_NOTES, JSON.stringify(tornNotes))
       return
     }
@@ -82,7 +82,7 @@ export const localStorageAPI = {
     const trashedNotes = this.getTrashedNotes()
     const trashedIndex = trashedNotes.findIndex(n => n.id === pageId)
     if (trashedIndex !== -1) {
-      trashedNotes[trashedIndex].page.content = content
+      trashedNotes[trashedIndex].content = content
       localStorage.setItem(STORAGE_KEYS.TRASHED_NOTES, JSON.stringify(trashedNotes))
     }
   },
