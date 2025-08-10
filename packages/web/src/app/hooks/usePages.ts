@@ -63,8 +63,8 @@ export function usePages() {
   const updateContent = useCallback(async (pageId: string, content: string) => {
     // 로컬 상태 즉시 업데이트
     setPages((prev) => prev.map((p) => (p.id === pageId ? { ...p, content } : p)))
-    setLoosePages((prev) => prev.map((pp) => (pp.id === pageId ? { ...pp, page: { ...pp.page, content } } : pp)))
-    setTrashPages((prev) => prev.map((pp) => (pp.id === pageId ? { ...pp, page: { ...pp.page, content } } : pp)))
+    setLoosePages((prev) => prev.map((pp) => (pp.id === pageId ? { ...pp, content } : pp)))
+    setTrashPages((prev) => prev.map((pp) => (pp.id === pageId ? { ...pp, content } : pp)))
 
     // 기존 타이머 제거
     const existingTimer = debounceTimers.current.get(pageId)
@@ -100,60 +100,60 @@ export function usePages() {
 
   // 찢기: 노트 → 페이지 리스트로 이동
   const tearPage = useCallback((pageId: string) => {
-    setPages((prev) => {
-      const idx = prev.findIndex((p) => p.id === pageId)
-      if (idx === -1) return prev
-      const page = prev[idx]
-      const next = [...prev.slice(0, idx), ...prev.slice(idx + 1)]
+    const pageToTear = pages.find((p) => p.id === pageId)
+    if (!pageToTear) return
+    
+    const newTornPage = {
+      id: uid(),
+      content: pageToTear.content,
+      x: 40 + Math.random() * 120,
+      y: 40 + Math.random() * 80,
+    }
+    
+    // 원본에서 제거
+    setPages((prev) => prev.filter((p) => p.id !== pageId))
+    
+    // 찢어진 페이지에 추가
+    setLoosePages((prev) => {
+      const updatedLoose = [...prev, newTornPage]
       
-      const newTornPage = {
-        id: uid(),
-        page,
-        x: 40 + Math.random() * 120,
-        y: 40 + Math.random() * 80,
+      // 로컬스토리지 저장
+      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+      if (!token) {
+        const updatedPages = pages.filter((p) => p.id !== pageId)
+        localStorageAPI.saveNotes(updatedPages)
+        localStorageAPI.saveTornNotes(updatedLoose)
       }
       
-      setLoosePages((loose) => {
-        const updatedLoose = [...loose, newTornPage]
-        
-        // 로컬스토리지 저장
-        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-        if (!token) {
-          localStorageAPI.saveNotes(next)
-          localStorageAPI.saveTornNotes(updatedLoose)
-        }
-        
-        return updatedLoose
-      })
-      return next
+      return updatedLoose
     })
-  }, [])
+  }, [pages])
 
   // 페이지 리스트 → 휴지통
   const discardFromList = useCallback((pid: string) => {
-    setLoosePages((prev) => {
-      const idx = prev.findIndex((p) => p.id === pid)
-      if (idx === -1) return prev
-      const item = prev[idx]
-      const updatedLoose = [...prev.slice(0, idx), ...prev.slice(idx + 1)]
+    const pageToDiscard = loosePages.find((p) => p.id === pid)
+    if (!pageToDiscard) return
+    
+    const newTrashPage = { ...pageToDiscard, x: 60, y: 60 }
+    
+    // loose pages에서 제거
+    setLoosePages((prev) => prev.filter((p) => p.id !== pid))
+    
+    // trash에 추가
+    setTrashPages((prev) => {
+      const updatedTrash = [...prev, newTrashPage]
       
-      const newTrashPage = { ...item, id: uid(), x: 60, y: 60 }
+      // 로컬스토리지 저장
+      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+      if (!token) {
+        const updatedLoose = loosePages.filter((p) => p.id !== pid)
+        localStorageAPI.saveTornNotes(updatedLoose)
+        localStorageAPI.saveTrashedNotes(updatedTrash)
+      }
       
-      setTrashPages((trash) => {
-        const updatedTrash = [...trash, newTrashPage]
-        
-        // 로컬스토리지 저장
-        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-        if (!token) {
-          localStorageAPI.saveTornNotes(updatedLoose)
-          localStorageAPI.saveTrashedNotes(updatedTrash)
-        }
-        
-        return updatedTrash
-      })
-      return updatedLoose
+      return updatedTrash
     })
-  }, [])
+  }, [loosePages])
 
   // 휴지통 완전 삭제
   const deleteForever = useCallback((pid: string) => {
