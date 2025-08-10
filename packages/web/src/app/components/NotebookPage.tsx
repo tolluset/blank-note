@@ -24,7 +24,15 @@ export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps)
   )
 
   if (!page) {
-    return null;
+    return (
+      <div className="relative rounded-lg border bg-white p-3 shadow-sm animate-pulse">
+        <div className="mb-2 flex items-center justify-between">
+          <div className="h-3 w-16 bg-gray-200 rounded"></div>
+          <div className="h-8 w-20 bg-gray-200 rounded"></div>
+        </div>
+        <div className="rounded-md border h-[280px] bg-gray-50"></div>
+      </div>
+    );
   }
 
   return (
