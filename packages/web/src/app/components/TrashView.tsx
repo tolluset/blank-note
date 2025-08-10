@@ -41,7 +41,7 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onRestore, onMo
               />
               <div className="mt-2 flex justify-between gap-2" onMouseDown={(e) => e.stopPropagation()}>
                 <Button
-                  variant="destructive"
+                  variant="default"
                   size="sm"
                   onClick={() => onDeleteForever(pp.id)}
                 >
