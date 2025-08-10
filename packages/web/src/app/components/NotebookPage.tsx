@@ -23,6 +23,10 @@ export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps)
     [],
   )
 
+  if (!page) {
+    return null;
+  }
+
   return (
     <div className="relative rounded-lg border bg-white p-3 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
@@ -30,30 +34,25 @@ export function NotebookPage({ label, page, onEdit, onTear }: NotebookPageProps)
         <Button
           variant="outline"
           onClick={onTear}
-          disabled={!page}
         >
           <Scissors />
           {"페이지 찢기"}
         </Button>
       </div>
 
-      <div className="rounded-md border" aria-label="노트 페이지">
-        {page ? (
-          <textarea
-            className="h-[280px] w-full resize-none bg-transparent p-2 outline-none"
-            placeholder={isFocused ? "여기에 직접 입력하세요..." : ""}
-            value={page.content}
-            onChange={(e) => onEdit(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            style={{
-              lineHeight: '24px',
-              ...linedStyle
-            }}
-          />
-        ) : (
-          <div className="p-2 text-neutral-400">{"빈 페이지"}</div>
-        )}
+      <div className="rounded-md border h-[280px]" aria-label="노트 페이지">
+        <textarea
+          className="h-full w-full resize-none bg-transparent p-2 outline-none"
+          placeholder={isFocused ? "여기에 직접 입력하세요..." : ""}
+          value={page.content}
+          onChange={(e) => onEdit(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          style={{
+            lineHeight: '24px',
+            ...linedStyle
+          }}
+        />
       </div>
     </div>
   )
