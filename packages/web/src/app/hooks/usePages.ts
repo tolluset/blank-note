@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, useRef } from "react"
 import type { Page, PositionedPage } from "../types"
 import { uid } from "../utils"
 import { notesAPI } from "../api"
+import { localStorageAPI } from "../utils/localStorage"
 
 export function usePages() {
   // 노트북 내부 페이지(순서 유지)
@@ -15,28 +16,41 @@ export function usePages() {
   // 데이터 초기 로딩
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const [notesData, tornData, trashedData] = await Promise.all([
-          notesAPI.getNotes(),
-          notesAPI.getTornNotes(),
-          notesAPI.getTrashedNotes(),
-        ])
+      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+      
+      if (token) {
+        // 로그인된 사용자: API 사용
+        try {
+          const [notesData, tornData, trashedData] = await Promise.all([
+            notesAPI.getNotes(),
+            notesAPI.getTornNotes(),
+            notesAPI.getTrashedNotes(),
+          ])
 
-        setPages(notesData || [])
-        setLoosePages(tornData || [])
-        setTrashPages(trashedData || [])
-      } catch (error) {
-        console.error('Failed to load notes:', error)
-        // 에러 시 기본 데이터로 초기화
-        setPages([
-          { id: uid(), content: "" },
-          { id: uid(), content: "" },
-          { id: uid(), content: "" },
-          { id: uid(), content: "" },
-        ])
-      } finally {
-        setLoading(false)
+          setPages(notesData || [])
+          setLoosePages(tornData || [])
+          setTrashPages(trashedData || [])
+        } catch (error) {
+          console.error('Failed to load notes from API:', error)
+          // API 실패 시 로컬스토리지로 폴백
+          loadFromLocalStorage()
+        }
+      } else {
+        // 비로그인 사용자: 로컬스토리지 사용
+        loadFromLocalStorage()
       }
+      
+      setLoading(false)
+    }
+
+    const loadFromLocalStorage = () => {
+      const notesData = localStorageAPI.getNotes()
+      const tornData = localStorageAPI.getTornNotes()
+      const trashedData = localStorageAPI.getTrashedNotes()
+      
+      setPages(notesData)
+      setLoosePages(tornData)
+      setTrashPages(trashedData)
     }
 
     loadData()
@@ -58,12 +72,24 @@ export function usePages() {
       clearTimeout(existingTimer)
     }
 
-    // 새로운 debounced 서버 업데이트
+    // 새로운 debounced 업데이트 (로그인 상태에 따라 API/로컬스토리지 선택)
     const timer = setTimeout(async () => {
       try {
-        await notesAPI.updateNote(pageId, { content })
+        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+        
+        if (token) {
+          // 로그인된 사용자: API 사용
+          await notesAPI.updateNote(pageId, { content })
+        } else {
+          // 비로그인 사용자: 로컬스토리지 사용
+          localStorageAPI.updateNote(pageId, content)
+        }
       } catch (error) {
         console.error('Failed to update note:', error)
+        // API 실패 시 로컬스토리지로 폴백
+        if (typeof window !== 'undefined' && localStorage.getItem('auth_token')) {
+          localStorageAPI.updateNote(pageId, content)
+        }
       } finally {
         debounceTimers.current.delete(pageId)
       }
