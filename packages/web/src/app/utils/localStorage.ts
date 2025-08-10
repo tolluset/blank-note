@@ -14,11 +14,8 @@ export const localStorageAPI = {
 
     const stored = localStorage.getItem(STORAGE_KEYS.NOTES)
     if (!stored) {
-      // 기본 데이터로 초기화
-      const defaultPages = Array.from({ length: 100 }, () => ({ id: uid(), content: "" }));
-
-      localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify(defaultPages))
-      return defaultPages
+      // 빈 배열로 시작 (사용자가 직접 100개 노트 추가하도록)
+      return []
     }
 
     try {

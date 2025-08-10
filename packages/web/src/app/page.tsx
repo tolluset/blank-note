@@ -11,6 +11,7 @@ export default function Page() {
     loading,
     updateContent,
     tearPage,
+    add100Notes,
   } = usePages()
 
   // 노트 뷰 관련 훅
@@ -30,6 +31,8 @@ export default function Page() {
         onSpreadChange={setSpread}
         onEdit={updateContent}
         onTear={tearPage}
+        onAdd100Notes={add100Notes}
+        pagesCount={pages.length}
       />
     </main>
   )
