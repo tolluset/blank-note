@@ -335,10 +335,8 @@ export function usePages() {
 
   const updatePagePositionLocally = useCallback(
     (id: string, x: number, y: number) => {
-      const loosePages = JSON.parse(localStorage.getItem("torn_notes") || "[]");
-      const trashPages = JSON.parse(
-        localStorage.getItem("trashed_notes") || "[]",
-      );
+      const loosePages = localStorageAPI.getTornNotes();
+      const trashPages = localStorageAPI.getTrashedNotes();
 
       const updatedLoose = loosePages.map((p: PositionedPage) =>
         p.id === id ? { ...p, x, y } : p,
