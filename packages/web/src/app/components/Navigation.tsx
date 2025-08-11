@@ -125,15 +125,16 @@ export function Navigation() {
                 </Link>
               </DropdownMenuItem>
             )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Moon className="mr-2 h-4 w-4" />
-              다크 모드
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Languages className="mr-2 h-4 w-4" />
-              언어 설정
-            </DropdownMenuItem>
+            {/* @TODO: dark-mode, intl settings */}
+            {/* <DropdownMenuSeparator /> */}
+            {/* <DropdownMenuItem> */}
+            {/*   <Moon className="mr-2 h-4 w-4" /> */}
+            {/*   다크 모드 */}
+            {/* </DropdownMenuItem> */}
+            {/* <DropdownMenuItem> */}
+            {/*   <Languages className="mr-2 h-4 w-4" /> */}
+            {/*   언어 설정 */}
+            {/* </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
