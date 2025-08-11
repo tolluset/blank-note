@@ -3,28 +3,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 
-declare global {
-  interface Window {
-    google: {
-      accounts: {
-        oauth2: {
-          initTokenClient: (config: {
-            client_id: string;
-            scope: string;
-            callback: (response: {
-              access_token: string;
-              token_type: string;
-              expires_in: number;
-            }) => void;
-          }) => {
-            requestAccessToken: () => void;
-          };
-        };
-      };
-    };
-  }
-}
-
 interface GoogleLoginButtonProps {
   onSuccess: (credential: string) => void;
   onError?: () => void;
@@ -35,13 +13,15 @@ export default function GoogleLoginButton({
   onError,
 }: GoogleLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const tokenClientRef = useRef<any>(null);
+  const tokenClientRef = useRef<google.accounts.oauth2.TokenClient | null>(
+    null,
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.google) {
       tokenClientRef.current = window.google.accounts.oauth2.initTokenClient({
         client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-        scope: 'openid email profile',
+        scope: "openid email profile",
         callback: (response) => {
           setIsLoading(false);
           if (response.access_token) {
