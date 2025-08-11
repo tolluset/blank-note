@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   DropdownMenu,
@@ -15,11 +15,13 @@ import { User, LogIn, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "../contexts/AuthContext"
+import { LoginModal } from "./LoginModal"
 
 export function Navigation() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, isLoggedIn, isLoading, imageLoaded, logout } = useAuth()
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -37,7 +39,7 @@ export function Navigation() {
         <Avatar className="h-6 w-6">
           <AvatarImage src={user.avatar} alt={user.name || user.email} />
           <AvatarFallback>
-            {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+            {user.name ? user.name.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase() || 'U'}
           </AvatarFallback>
         </Avatar>
       )
@@ -47,7 +49,7 @@ export function Navigation() {
       return (
         <Avatar className="h-6 w-6">
           <AvatarFallback>
-            {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+            {user.name ? user.name.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase() || 'U'}
           </AvatarFallback>
         </Avatar>
       )
@@ -94,7 +96,7 @@ export function Navigation() {
                       <AvatarImage src={user.avatar} alt={user.name || user.email} />
                     ) : null}
                     <AvatarFallback>
-                      {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+                      {user.name ? user.name.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
@@ -109,11 +111,9 @@ export function Navigation() {
                 </DropdownMenuItem>
               </>
             ) : (
-              <DropdownMenuItem asChild>
-                <Link href="/login">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  로그인
-                </Link>
+              <DropdownMenuItem onClick={() => setIsLoginModalOpen(true)}>
+                <LogIn className="mr-2 h-4 w-4" />
+                로그인
               </DropdownMenuItem>
             )}
             {/* @TODO: dark-mode, intl settings */}
@@ -129,6 +129,11 @@ export function Navigation() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </header>
   )
 }
