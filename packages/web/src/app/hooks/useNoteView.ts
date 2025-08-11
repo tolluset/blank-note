@@ -61,22 +61,18 @@ export function useNoteView(pages: Page[], initialSpreadParam?: string) {
       // URL에 spread 파라미터가 있으면 그걸 사용
       const urlSpread = Math.max(1, urlSpreadParam) - 1
       const validSpread = Math.min(urlSpread, totalSpreads - 1)
-      if (validSpread !== spread) {
-        setSpreadState(validSpread)
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('noteSpread', validSpread.toString())
-        }
+      setSpreadState(validSpread)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('noteSpread', validSpread.toString())
       }
     } else if (!searchParams.has('spread')) {
       // URL에 spread 파라미터가 없으면 spread=0 (첫 페이지)으로 설정
-      if (spread !== 0) {
-        setSpreadState(0)
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('noteSpread', '0')
-        }
+      setSpreadState(0)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('noteSpread', '0')
       }
     }
-  }, [searchParams, totalSpreads, spread])
+  }, [searchParams, totalSpreads])
 
   // totalSpreads 변경 시 spread 범위 재조정
   useEffect(() => {
