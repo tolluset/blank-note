@@ -2,15 +2,15 @@ import type React from "react"
 
 interface MovableHeaderProps {
   title: string
-  onMouseDown: (e: React.MouseEvent) => void
+  onPointerDown?: (e: React.PointerEvent) => void
 }
 
-export function MovableHeader({ title, onMouseDown }: MovableHeaderProps) {
+export function MovableHeader({ title, onPointerDown }: MovableHeaderProps) {
   return (
     <div className="mb-2 flex items-center justify-between">
       <div
         className="select-none rounded px-1 text-xs text-muted-foreground"
-        onMouseDown={onMouseDown}
+        onPointerDown={onPointerDown}
         aria-label="끌어서 이동"
         title="끌어서 이동"
       >

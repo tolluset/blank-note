@@ -8,10 +8,10 @@ interface TrashViewProps {
   onEdit: (pageId: string, content: string) => void
   onDeleteForever: (pid: string) => void
   onRestore?: (pid: string) => void
-  onMouseDown: (id: string, getPos: (id: string) => { x: number; y: number } | undefined) => (e: React.MouseEvent) => void
+  onPointerDown: (id: string, getPos: (id: string) => { x: number; y: number } | undefined) => (e: React.PointerEvent) => void
 }
 
-export function TrashView({ trashPages, onEdit, onDeleteForever, onRestore, onMouseDown }: TrashViewProps) {
+export function TrashView({ trashPages, onEdit, onDeleteForever, onRestore, onPointerDown }: TrashViewProps) {
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-end">
@@ -24,22 +24,21 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onRestore, onMo
               key={pp.id}
               x={pp.x}
               y={pp.y}
-              onMouseDown={onMouseDown(pp.id, (id) => {
+              onPointerDown={onPointerDown(pp.id, (id) => {
                 const page = trashPages.find((p) => p.id === id)
                 return page ? { x: page.x, y: page.y } : undefined
               })}
             >
               <MovableHeader
                 title={"휴지통"}
-                onMouseDown={() => { }}
               />
               <EditableArea
                 value={pp.content}
-                onChange={(v) => onEdit(pp.id, v)}
                 minHeightClass="min-h-[220px]"
-                onMouseDown={(e) => e.stopPropagation()}
+                onChange={(v) => onEdit(pp.id, v)}
+                onPointerDown={(e) => e.stopPropagation()}
               />
-              <div className="mt-2 flex justify-between gap-2" onMouseDown={(e) => e.stopPropagation()}>
+              <div className="mt-2 flex justify-between gap-2">
                 <Button
                   variant="default"
                   size="sm"

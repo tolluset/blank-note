@@ -4,8 +4,8 @@ import { useRef } from "react"
 export function useDrag(updatePosition: (id: string, x: number, y: number) => void) {
   const dragging = useRef<{ id: string; offX: number; offY: number } | null>(null)
 
-  const onMouseDown =
-    (id: string, getPos: (id: string) => { x: number; y: number } | undefined) => (e: React.MouseEvent) => {
+  const onPointerDown =
+    (id: string, getPos: (id: string) => { x: number; y: number } | undefined) => (e: React.PointerEvent) => {
       e.preventDefault()
       const pos = getPos(id)
       if (!pos) return
@@ -14,11 +14,11 @@ export function useDrag(updatePosition: (id: string, x: number, y: number) => vo
         offX: e.clientX - pos.x,
         offY: e.clientY - pos.y,
       }
-      window.addEventListener("mousemove", onMouseMove)
-      window.addEventListener("mouseup", onMouseUp)
+      window.addEventListener("pointermove", onPointerMove)
+      window.addEventListener("pointerup", onPointerUp)
     }
 
-  const onMouseMove = (e: MouseEvent) => {
+  const onPointerMove = (e: PointerEvent) => {
     if (!dragging.current) return
     const { id, offX, offY } = dragging.current
     const x = e.clientX - offX
@@ -26,11 +26,11 @@ export function useDrag(updatePosition: (id: string, x: number, y: number) => vo
     updatePosition(id, x, y)
   }
 
-  const onMouseUp = () => {
+  const onPointerUp = () => {
     dragging.current = null
-    window.removeEventListener("mousemove", onMouseMove)
-    window.removeEventListener("mouseup", onMouseUp)
+    window.removeEventListener("pointermove", onPointerMove)
+    window.removeEventListener("pointerup", onPointerUp)
   }
 
-  return { onMouseDown }
+  return { onPointerDown }
 } 

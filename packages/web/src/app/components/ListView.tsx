@@ -7,10 +7,10 @@ interface ListViewProps {
   loosePages: PositionedPage[]
   onEdit: (pageId: string, content: string) => void
   onDiscard: (pid: string) => void
-  onMouseDown: (id: string, getPos: (id: string) => { x: number; y: number } | undefined) => (e: React.MouseEvent) => void
+  onPointerDown: (id: string, getPos: (id: string) => { x: number; y: number } | undefined) => (e: React.PointerEvent) => void
 }
 
-export function ListView({ loosePages, onEdit, onDiscard, onMouseDown }: ListViewProps) {
+export function ListView({ loosePages, onEdit, onDiscard, onPointerDown }: ListViewProps) {
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-end">
@@ -23,20 +23,19 @@ export function ListView({ loosePages, onEdit, onDiscard, onMouseDown }: ListVie
               key={pp.id}
               x={pp.x}
               y={pp.y}
-              onMouseDown={onMouseDown(pp.id, (id) => {
+              onPointerDown={onPointerDown(pp.id, (id) => {
                 const page = loosePages.find((p) => p.id === id)
                 return page ? { x: page.x, y: page.y } : undefined
               })}
             >
               <MovableHeader
                 title={"페이지"}
-                onMouseDown={() => { }}
               />
               <EditableArea
                 value={pp.content}
                 onChange={(v) => onEdit(pp.id, v)}
                 minHeightClass="min-h-[220px]"
-                onMouseDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
               />
               <Button
                 variant="outline"

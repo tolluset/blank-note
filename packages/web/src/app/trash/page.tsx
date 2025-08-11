@@ -26,7 +26,7 @@ export default function TrashPage() {
         onEdit={updateContent}
         onDeleteForever={deleteForever}
         onRestore={restoreToList}
-        onMouseDown={drag.onMouseDown}
+        onPointerDown={drag.onPointerDown}
       />
     </main>
   )
