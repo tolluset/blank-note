@@ -87,13 +87,13 @@ The backend API for Blank Note, built with Hono and PostgreSQL.
 2. **Run migrations**
 
    ```bash
-   docker-compose -f docker-compose.migrate.yml up --build migrate
+   docker-compose -f docker-compose.migrate.yml up --build
    ```
 
 3. **Start server**
 
    ```bash
-   docker-compose -f docker-compose.server.yml up -d
+   docker-compose -f docker-compose.server.yml up --build -d
    ```
 
 ### Container Management
