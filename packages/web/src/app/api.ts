@@ -47,4 +47,30 @@ export class NotesAPI {
   }
 }
 
+export class AuthAPI {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    })
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`)
+    }
+
+    return response.json()
+  }
+
+  async googleLogin(idToken: string): Promise<{ token: string }> {
+    return this.request<{ token: string }>('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ id_token: idToken }),
+    })
+  }
+}
+
+export const authAPI = new AuthAPI()
 export const notesAPI = new NotesAPI()
