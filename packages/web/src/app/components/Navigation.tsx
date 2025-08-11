@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState, useMemo } from "react"
+import { useMemo } from "react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   DropdownMenu,
@@ -31,7 +31,7 @@ export function Navigation() {
     if (isLoading) {
       return <User />
     }
-    
+
     if (isLoggedIn && user?.avatar && imageLoaded) {
       return (
         <Avatar className="h-6 w-6">
@@ -42,7 +42,7 @@ export function Navigation() {
         </Avatar>
       )
     }
-    
+
     if (isLoggedIn && user && !user.avatar) {
       return (
         <Avatar className="h-6 w-6">
@@ -52,7 +52,7 @@ export function Navigation() {
         </Avatar>
       )
     }
-    
+
     return <User />
   }, [isLoading, isLoggedIn, user, imageLoaded])
 
