@@ -109,10 +109,10 @@ export class AuthAPI {
     return response.json()
   }
 
-  async googleLogin(idToken: string): Promise<{ token: string }> {
+  async googleLogin(accessToken: string): Promise<{ token: string }> {
     return this.request<{ token: string }>('/auth/google', {
       method: 'POST',
-      body: JSON.stringify({ id_token: idToken }),
+      body: JSON.stringify({ access_token: accessToken }),
     })
   }
 
