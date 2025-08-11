@@ -48,10 +48,18 @@ export class NotesAPI {
 }
 
 export class AuthAPI {
+  private getAuthToken(): string | null {
+    if (typeof window === 'undefined') return null
+    return localStorage.getItem('auth_token')
+  }
+
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const token = this.getAuthToken()
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
@@ -69,6 +77,20 @@ export class AuthAPI {
       method: 'POST',
       body: JSON.stringify({ id_token: idToken }),
     })
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.getAuthToken()
+  }
+
+  logout(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_token')
+    }
+  }
+
+  async getMe(): Promise<{ id: string; email: string; name?: string; avatar?: string }> {
+    return this.request<{ id: string; email: string; name?: string; avatar?: string }>('/auth/me')
   }
 }
 

@@ -4,7 +4,14 @@ import { useEffect, useRef } from 'react';
 
 declare global {
   interface Window {
-    google: any;
+    google: {
+      accounts: {
+        id: {
+          initialize: (config: { client_id: string; callback: (response: { credential: string }) => void }) => void;
+          renderButton: (element: HTMLElement, config: { theme: string; size: string; width: string }) => void;
+        };
+      };
+    };
   }
 }
 
@@ -19,8 +26,8 @@ export default function GoogleLoginButton({ onSuccess, onError }: GoogleLoginBut
   useEffect(() => {
     if (typeof window !== 'undefined' && window.google) {
       window.google.accounts.id.initialize({
-        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-        callback: (response: any) => {
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+        callback: (response: { credential: string }) => {
           if (response.credential) {
             onSuccess(response.credential);
           } else {
