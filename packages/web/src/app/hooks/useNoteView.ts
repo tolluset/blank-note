@@ -67,14 +67,12 @@ export function useNoteView(pages: Page[], initialSpreadParam?: string) {
           localStorage.setItem('noteSpread', validSpread.toString())
         }
       }
-    } else {
-      // URL에 spread 파라미터가 없으면 localStorage에서 복원
-      if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('noteSpread')
-        const storedSpread = stored ? parseInt(stored, 10) : 0
-        const validSpread = Math.max(0, Math.min(storedSpread, totalSpreads - 1))
-        if (validSpread !== spread) {
-          setSpreadState(validSpread)
+    } else if (!searchParams.has('spread')) {
+      // URL에 spread 파라미터가 없으면 spread=0 (첫 페이지)으로 설정
+      if (spread !== 0) {
+        setSpreadState(0)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('noteSpread', '0')
         }
       }
     }
