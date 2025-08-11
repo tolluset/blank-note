@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import GoogleLoginButton from "./GoogleLoginButton";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface LoginModalProps {
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const { login } = useAuth();
+  const { t } = useLanguage();
 
   const handleGoogleLogin = async (credential: string) => {
     try {
@@ -32,13 +34,13 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       window.location.reload();
     } catch (error) {
       console.error("로그인 실패:", error);
-      alert("로그인에 실패했습니다.");
+      alert(t("loginFailed"));
     }
   };
 
   const handleGoogleLoginError = () => {
     console.error("Google login error");
-    alert("구글 로그인에 실패했습니다.");
+    alert(t("googleLoginFailed"));
   };
 
   return (
@@ -48,8 +50,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>로그인</DialogTitle>
-          <DialogDescription>Google 계정으로 로그인하세요.</DialogDescription>
+          <DialogTitle>{t("login")}</DialogTitle>
+          <DialogDescription>{t("loginWithGoogle")}</DialogDescription>
         </DialogHeader>
         <div className="mt-8">
           <GoogleLoginButton

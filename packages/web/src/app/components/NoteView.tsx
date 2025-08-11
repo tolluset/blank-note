@@ -2,6 +2,7 @@ import type React from "react"
 import type { Page } from "../types"
 import { NotebookPage } from "./NotebookPage"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "../contexts/LanguageContext"
 
 interface NoteViewProps {
   spread: number
@@ -30,6 +31,7 @@ export function NoteView({
   onAdd100Notes,
   pagesCount,
 }: NoteViewProps) {
+  const { t } = useLanguage()
   // 페이지가 없을 때 (로딩 중이 아니고, 실제로 페이지가 0개일 때만)
   const hasNoPages = !isLoading && pagesCount === 0
 
@@ -39,15 +41,15 @@ export function NoteView({
         // 페이지 없을 때: 100개 노트 추가 버튼 표시
         <div className="flex flex-col items-center justify-center py-16 gap-4">
           <div className="text-neutral-500 text-center">
-            <div className="text-lg mb-2">노트가 없습니다</div>
-            <div className="text-sm">100개의 빈 페이지로 시작하세요</div>
+            <div className="text-lg mb-2">{t("noNotes")}</div>
+            <div className="text-sm">{t("startWithEmptyPages")}</div>
           </div>
           <Button
             onClick={onAdd100Notes}
             disabled={isLoading}
             className="px-6 py-2"
           >
-            100페이지로 시작하기
+            {t("startWith100Pages")}
           </Button>
         </div>
       ) : (
@@ -60,9 +62,9 @@ export function NoteView({
                 size="sm"
                 onClick={() => onSpreadChange(Math.max(0, spread - 1))}
                 disabled={spread === 0}
-                aria-label="이전 펼침면"
+                aria-label={t("previousSpread")}
               >
-                {"← 이전"}
+                {t("previous")}
               </Button>
               <div className="text-xs text-neutral-500">{`${spread + 1} / ${totalSpreads}`}</div>
               <Button
@@ -70,9 +72,9 @@ export function NoteView({
                 size="sm"
                 onClick={() => onSpreadChange(Math.min(totalSpreads - 1, spread + 1))}
                 disabled={spread >= totalSpreads - 1}
-                aria-label="다음 펼침면"
+                aria-label={t("nextSpread")}
               >
-                {"다음 →"}
+                {t("next")}
               </Button>
             </div>
           </div>
@@ -106,7 +108,7 @@ export function NoteView({
               // right 페이지가 없을 때 100개로 채우기 버튼 표시
               <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-8 min-h-[400px]">
                 <div className="text-neutral-500 text-center mb-4">
-                  <div className="text-sm mb-2">페이지를 100개까지 늘릴까요?</div>
+                  <div className="text-sm mb-2">{t("expandTo100Question")}</div>
                 </div>
                 <Button
                   onClick={onAdd100Notes}
@@ -114,7 +116,7 @@ export function NoteView({
                   size="sm"
                   className="text-xs px-4 py-2"
                 >
-                  100개로 채우기
+                  {t("expandTo100")}
                 </Button>
               </div>
             )}

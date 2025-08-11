@@ -1,5 +1,6 @@
 import type React from "react"
 import { Card } from "@/components/ui/card"
+import { useLanguage } from "../contexts/LanguageContext"
 
 interface FreePageCardProps {
   x: number
@@ -9,11 +10,12 @@ interface FreePageCardProps {
 }
 
 export function FreePageCard({ x, y, children, onPointerDown }: FreePageCardProps) {
+  const { t } = useLanguage()
   return (
     <Card
       className="absolute w-[320px] p-2 cursor-move touch-none"
       style={{ left: x, top: y }}
-      aria-label="자유 배치 페이지"
+      aria-label={t("freeFloatingPage")}
       onPointerDown={onPointerDown}
     >
       {children}

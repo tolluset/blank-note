@@ -1,4 +1,5 @@
 import type React from "react"
+import { useLanguage } from "../contexts/LanguageContext"
 
 interface MovableHeaderProps {
   title: string
@@ -6,17 +7,18 @@ interface MovableHeaderProps {
 }
 
 export function MovableHeader({ title, onPointerDown }: MovableHeaderProps) {
+  const { t } = useLanguage()
   return (
     <div className="mb-2 flex items-center justify-between">
       <div
         className="select-none rounded px-1 text-xs text-muted-foreground"
         onPointerDown={onPointerDown}
-        aria-label="끌어서 이동"
-        title="끌어서 이동"
+        aria-label={t("dragToMove")}
+        title={t("dragToMove")}
       >
         {title}
       </div>
-      <div className="text-[10px] text-muted-foreground/60">{"드래그로 이동"}</div>
+      <div className="text-[10px] text-muted-foreground/60">{t("dragToMove")}</div>
     </div>
   )
 } 

@@ -2,6 +2,7 @@ import type React from "react"
 import type { PositionedPage } from "../types"
 import { EditableArea, FreePageCard, MovableHeader } from "./"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "../contexts/LanguageContext"
 
 interface TrashViewProps {
   trashPages: PositionedPage[]
@@ -12,10 +13,11 @@ interface TrashViewProps {
 }
 
 export function TrashView({ trashPages, onEdit, onDeleteForever, onRestore, onPointerDown }: TrashViewProps) {
+  const { t } = useLanguage()
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-end">
-        <div className="text-xs text-neutral-500">{`${trashPages.length}장`}</div>
+        <div className="text-xs text-neutral-500">{`${trashPages.length}${t("pages")}`}</div>
       </div>
       <div className="relative h-[560px] w-full overflow-auto rounded-lg border bg-neutral-50">
         <div className="absolute inset-0">
@@ -30,7 +32,7 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onRestore, onPo
               })}
             >
               <MovableHeader
-                title={"휴지통"}
+                title={t("trash")}
               />
               <EditableArea
                 value={pp.content}
@@ -44,7 +46,7 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onRestore, onPo
                   size="sm"
                   onClick={() => onDeleteForever(pp.id)}
                 >
-                  {"완전삭제"}
+                  {t("deleteForever")}
                 </Button>
 
                 {onRestore && (
@@ -53,7 +55,7 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onRestore, onPo
                     size="sm"
                     onClick={() => onRestore(pp.id)}
                   >
-                    {"리스트로 복원"}
+                    {t("restoreToList")}
                   </Button>
                 )}
 

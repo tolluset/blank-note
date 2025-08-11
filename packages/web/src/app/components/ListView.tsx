@@ -2,6 +2,7 @@ import type React from "react"
 import type { PositionedPage } from "../types"
 import { EditableArea, FreePageCard, MovableHeader } from "./"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "../contexts/LanguageContext"
 
 interface ListViewProps {
   loosePages: PositionedPage[]
@@ -11,10 +12,11 @@ interface ListViewProps {
 }
 
 export function ListView({ loosePages, onEdit, onDiscard, onPointerDown }: ListViewProps) {
+  const { t } = useLanguage()
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-end">
-        <div className="text-xs text-neutral-500">{`${loosePages.length}장`}</div>
+        <div className="text-xs text-neutral-500">{`${loosePages.length}${t("pages")}`}</div>
       </div>
       <div className="relative h-[560px] w-full overflow-auto rounded-lg border bg-neutral-50">
         <div className="absolute inset-0">
@@ -29,7 +31,7 @@ export function ListView({ loosePages, onEdit, onDiscard, onPointerDown }: ListV
               })}
             >
               <MovableHeader
-                title={"페이지"}
+                title={t("page")}
               />
               <EditableArea
                 value={pp.content}
@@ -43,7 +45,7 @@ export function ListView({ loosePages, onEdit, onDiscard, onPointerDown }: ListV
                 onClick={() => onDiscard(pp.id)}
                 className="mt-2"
               >
-                {"버리기"}
+                {t("discard")}
               </Button>
             </FreePageCard>
           ))}

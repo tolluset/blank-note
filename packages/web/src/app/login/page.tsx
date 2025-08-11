@@ -4,10 +4,12 @@ import GoogleLoginButton from '../components/GoogleLoginButton';
 import { authAPI } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
 
   const handleGoogleLoginSuccess = async (credential: string) => {
     try {
@@ -21,13 +23,13 @@ export default function LoginPage() {
       router.push('/');
     } catch (error) {
       console.error('Login failed:', error);
-      alert('로그인에 실패했습니다.');
+      alert(t('loginFailed'));
     }
   };
 
   const handleGoogleLoginError = () => {
     console.error('Google login error');
-    alert('구글 로그인에 실패했습니다.');
+    alert(t('googleLoginFailed'));
   };
 
   return (
@@ -35,7 +37,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Blank Note</h2>
-          <p className="text-gray-600">로그인하여 시작하세요</p>
+          <p className="text-gray-600">{t('loginToStart')}</p>
         </div>
         
         <div className="mt-8">

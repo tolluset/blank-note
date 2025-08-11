@@ -5,6 +5,7 @@ import { useMemo, useState } from "react"
 import type { Page } from "../types"
 import { Scissors } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "../contexts/LanguageContext"
 
 interface NotebookPageProps {
   label: string
@@ -16,6 +17,7 @@ interface NotebookPageProps {
 
 export function NotebookPage({ label, page, isLoading, onEdit, onTear }: NotebookPageProps) {
   const [isFocused, setIsFocused] = useState(false);
+  const { t } = useLanguage();
   
   const linedStyle = useMemo(
     () => ({
@@ -51,14 +53,14 @@ export function NotebookPage({ label, page, isLoading, onEdit, onTear }: Noteboo
           onClick={onTear}
         >
           <Scissors />
-          {"페이지 찢기"}
+          {t("tearPage")}
         </Button>
       </div>
 
-      <div className="rounded-md border h-[280px]" aria-label="노트 페이지">
+      <div className="rounded-md border h-[280px]" aria-label={t("notePage")}>
         <textarea
           className="h-full w-full resize-none bg-transparent p-2 outline-none"
-          placeholder={isFocused ? "여기에 직접 입력하세요..." : ""}
+          placeholder={isFocused ? t("writeHereDirectly") : ""}
           value={page.content}
           onChange={(e) => onEdit(e.target.value)}
           onFocus={() => setIsFocused(true)}
