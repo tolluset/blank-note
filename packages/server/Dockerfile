@@ -5,10 +5,16 @@ RUN npm install -g pnpm
 
 WORKDIR /app
 
-COPY package*.json ./
+# Copy package files first for better caching
+COPY package*.json pnpm-lock.yaml* ./
 RUN pnpm install
 
-COPY . .
+# Copy .env and source files
+COPY .env* ./
+COPY src ./src
+COPY drizzle ./drizzle
+COPY tsconfig.json drizzle.config.ts ./
+
 
 EXPOSE 8787
 

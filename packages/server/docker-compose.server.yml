@@ -1,16 +1,17 @@
-version: "3.8"
-
 services:
   server:
     build:
-      context: ./packages/server
+      context: .
       dockerfile: Dockerfile
     ports:
       - "${SERVER_PORT}:8787"
-    depends_on:
-      - postgres
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL}
-    volumes:
-      - ./packages/server:/app
-    working_dir: /app
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
