@@ -46,6 +46,11 @@ type Translations = {
   // Server messages
   alreadyHaveMaxNotes: string;
   newNotesCreated: string;
+  // 404 page
+  pageNotFound: string;
+  pageNotFoundDescription: string;
+  goHome: string;
+  goBack: string;
 };
 
 interface LanguageContextType {
@@ -101,6 +106,11 @@ const translations: Record<Language, Translations> = {
     // Server messages
     alreadyHaveMaxNotes: "Already have 100 notes.",
     newNotesCreated: "new notes created.",
+    // 404 page
+    pageNotFound: "Page Not Found",
+    pageNotFoundDescription: "The page you are looking for does not exist.",
+    goHome: "Go Home",
+    goBack: "Go Back",
   },
   ko: {
     notes: "노트",
@@ -144,6 +154,11 @@ const translations: Record<Language, Translations> = {
     // Server messages
     alreadyHaveMaxNotes: "이미 100개의 노트가 있습니다.",
     newNotesCreated: "개의 새 노트가 생성되었습니다.",
+    // 404 page
+    pageNotFound: "페이지를 찾을 수 없습니다",
+    pageNotFoundDescription: "요청하신 페이지가 존재하지 않습니다.",
+    goHome: "홈으로",
+    goBack: "뒤로가기",
   },
   ja: {
     notes: "ノート",
@@ -187,6 +202,11 @@ const translations: Record<Language, Translations> = {
     // Server messages
     alreadyHaveMaxNotes: "すでに100個のノートがあります。",
     newNotesCreated: "個の新しいノートが作成されました。",
+    // 404 page
+    pageNotFound: "ページが見つかりません",
+    pageNotFoundDescription: "お探しのページは存在しません。",
+    goHome: "ホームへ",
+    goBack: "戻る",
   },
 };
 
