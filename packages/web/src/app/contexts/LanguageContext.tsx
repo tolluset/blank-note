@@ -54,7 +54,16 @@ const translations = {
 };
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("ko");
+  const getDefaultLanguage = (): Language => {
+    if (typeof window !== "undefined") {
+      const browserLang = navigator.language.toLowerCase();
+      if (browserLang.startsWith("ko")) return "ko";
+      if (browserLang.startsWith("ja")) return "ja";
+    }
+    return "en";
+  };
+
+  const [language, setLanguageState] = useState<Language>(getDefaultLanguage());
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("language") as Language;
