@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { ListView, Navigation } from "../components"
+import { ListView } from "../components"
 import { usePages, useDrag } from "../hooks"
 
 export default function ListPage() {
@@ -17,15 +17,11 @@ export default function ListPage() {
   const drag = useDrag(updatePagePosition)
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6 text-sm sm:text-base">
-      <Navigation />
-
-      <ListView
-        loosePages={loosePages}
-        onEdit={updateContent}
-        onDiscard={discardFromList}
-        onPointerDown={drag.onPointerDown}
-      />
-    </main>
+    <ListView
+      loosePages={loosePages}
+      onEdit={updateContent}
+      onDiscard={discardFromList}
+      onPointerDown={drag.onPointerDown}
+    />
   )
 }

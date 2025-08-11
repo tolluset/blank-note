@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { TrashView, Navigation } from "../components"
+import { TrashView } from "../components"
 import { usePages, useDrag } from "../hooks"
 
 export default function TrashPage() {
@@ -18,16 +18,12 @@ export default function TrashPage() {
   const drag = useDrag(updatePagePosition)
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6 text-sm sm:text-base">
-      <Navigation />
-      
-      <TrashView
-        trashPages={trashPages}
-        onEdit={updateContent}
-        onDeleteForever={deleteForever}
-        onRestore={restoreToList}
-        onPointerDown={drag.onPointerDown}
-      />
-    </main>
+    <TrashView
+      trashPages={trashPages}
+      onEdit={updateContent}
+      onDeleteForever={deleteForever}
+      onRestore={restoreToList}
+      onPointerDown={drag.onPointerDown}
+    />
   )
 }

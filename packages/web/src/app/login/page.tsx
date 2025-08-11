@@ -2,14 +2,23 @@
 
 import GoogleLoginButton from '../components/GoogleLoginButton';
 import { authAPI } from '../api';
+import { useAuth } from '../contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const { login } = useAuth();
+  const router = useRouter();
 
   const handleGoogleLoginSuccess = async (credential: string) => {
     try {
       const response = await authAPI.googleLogin(credential);
       localStorage.setItem('auth_token', response.token);
-      window.location.href = '/';
+      
+      // 사용자 정보를 Context에 설정
+      const userData = await authAPI.getMe();
+      login(userData);
+      
+      router.push('/');
     } catch (error) {
       console.error('Login failed:', error);
       alert('로그인에 실패했습니다.');

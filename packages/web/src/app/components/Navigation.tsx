@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   DropdownMenu,
@@ -14,49 +14,47 @@ import {
 import { User, LogIn, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { authAPI } from "../api"
-
-interface User {
-  id: string
-  email: string
-  name?: string
-  avatar?: string
-}
+import { useAuth } from "../contexts/AuthContext"
 
 export function Navigation() {
   const pathname = usePathname()
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      if (authAPI.isLoggedIn()) {
-        try {
-          const userData = await authAPI.getMe()
-          setUser(userData)
-          setIsLoggedIn(true)
-        } catch (error) {
-          console.error('Failed to fetch user data:', error)
-          authAPI.logout()
-          setIsLoggedIn(false)
-          setUser(null)
-        }
-      } else {
-        setIsLoggedIn(false)
-        setUser(null)
-      }
-    }
-
-    checkAuthStatus()
-  }, [])
+  const { user, isLoggedIn, isLoading, imageLoaded, logout } = useAuth()
 
   const handleLogout = () => {
-    authAPI.logout()
-    setIsLoggedIn(false)
-    setUser(null)
+    logout()
     router.push('/login')
   }
+
+  // 아바타 렌더링 최적화를 위한 메모이제이션
+  const avatarContent = useMemo(() => {
+    if (isLoading) {
+      return <User />
+    }
+    
+    if (isLoggedIn && user?.avatar && imageLoaded) {
+      return (
+        <Avatar className="h-6 w-6">
+          <AvatarImage src={user.avatar} alt={user.name || user.email} />
+          <AvatarFallback>
+            {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+      )
+    }
+    
+    if (isLoggedIn && user && !user.avatar) {
+      return (
+        <Avatar className="h-6 w-6">
+          <AvatarFallback>
+            {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+      )
+    }
+    
+    return <User />
+  }, [isLoading, isLoggedIn, user, imageLoaded])
 
   return (
     <header className="mb-4 flex items-center justify-between">
@@ -84,16 +82,7 @@ export function Navigation() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
-              {isLoggedIn && user?.avatar ? (
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={user.avatar} alt={user.name || user.email} />
-                  <AvatarFallback>
-                    {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              ) : (
-                <User />
-              )}
+              {avatarContent}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
@@ -101,7 +90,9 @@ export function Navigation() {
               <>
                 <div className="flex items-center gap-2 px-3 py-2">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar || ''} alt={user.name || user.email} />
+                    {user.avatar && imageLoaded ? (
+                      <AvatarImage src={user.avatar} alt={user.name || user.email} />
+                    ) : null}
                     <AvatarFallback>
                       {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
                     </AvatarFallback>
