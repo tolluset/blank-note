@@ -45,6 +45,12 @@ export class NotesAPI {
       body: JSON.stringify(data),
     })
   }
+
+  async create100Notes() {
+    return this.request('/notes/create-100', {
+      method: 'POST',
+    })
+  }
 }
 
 export class AuthAPI {

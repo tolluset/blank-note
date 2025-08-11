@@ -3,9 +3,11 @@ import { cors } from 'hono/cors'
 import { serve } from '@hono/node-server'
 import notes from './notes'
 import auth from './auth'
+import { logger } from 'hono/logger'
 
 const app = new Hono()
 
+app.use(logger())
 app.use('*', cors({
   origin: '*',
   allowHeaders: ['Content-Type', 'Authorization'],

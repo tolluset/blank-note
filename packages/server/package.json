@@ -15,7 +15,8 @@
     "hono": "^4.9.0",
     "jsonwebtoken": "^9.0.2",
     "nanoid": "^5.1.5",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "ulid": "^3.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

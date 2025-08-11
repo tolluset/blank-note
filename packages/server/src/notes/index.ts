@@ -46,4 +46,17 @@ notes.patch('/:pageId', async (c) => {
   }
 })
 
+notes.post('/create-100', async (c) => {
+  const userId = getUserId(c)
+  const service = new NotesService(new NotesRepository(), userId)
+  
+  try {
+    const result = await service.create100Notes()
+    return c.json(result)
+  } catch (error) {
+    console.error('Error creating 100 notes:', error)
+    return c.json({ error: 'Failed to create notes' }, 500)
+  }
+})
+
 export default notes

@@ -233,17 +233,30 @@ export function usePages() {
     const needed = Math.max(0, 100 - currentCount)
 
     if (needed > 0) {
-      const newPages = Array.from({ length: needed }, () => ({ id: uid(), content: "" }))
-      const updatedPages = [...pages, ...newPages]
-
-      setPages(updatedPages)
-
       const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-      if (!token) {
+      
+      if (token) {
+        // 로그인된 사용자: API 사용
+        try {
+          await notesAPI.create100Notes()
+          // API 호출 후 데이터 다시 로딩
+          const notesData = await notesAPI.getNotes()
+          setPages(notesData || [])
+        } catch (error) {
+          console.error('Failed to create 100 notes via API:', error)
+          // API 실패 시 로컬스토리지로 폴백
+          const newPages = Array.from({ length: needed }, () => ({ id: uid(), content: "" }))
+          const updatedPages = [...pages, ...newPages]
+          setPages(updatedPages)
+          localStorageAPI.saveNotes(updatedPages)
+        }
+      } else {
         // 비로그인 사용자: 로컬스토리지에 저장
+        const newPages = Array.from({ length: needed }, () => ({ id: uid(), content: "" }))
+        const updatedPages = [...pages, ...newPages]
+        setPages(updatedPages)
         localStorageAPI.saveNotes(updatedPages)
       }
-      // 로그인된 사용자의 경우 API 호출은 현재 구현되어 있지 않으므로 생략
     }
   }, [pages])
 

@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, asc } from "drizzle-orm";
 import { db } from "../db";
 import { notes } from "../db/schema";
 
@@ -22,7 +22,8 @@ export class NotesRepository {
       .where(and(
         eq(notes.userId, userId),
         eq(notes.isTrashed, false)
-      ));
+      ))
+      .orderBy(asc(notes.id));
   }
 
   async findTornByUserId(userId: string) {
@@ -33,7 +34,8 @@ export class NotesRepository {
         eq(notes.userId, userId),
         eq(notes.isTorn, true),
         eq(notes.isTrashed, false)
-      ));
+      ))
+      .orderBy(asc(notes.id));
   }
 
   async findTrashedByUserId(userId: string) {
@@ -43,7 +45,8 @@ export class NotesRepository {
       .where(and(
         eq(notes.userId, userId),
         eq(notes.isTrashed, true)
-      ));
+      ))
+      .orderBy(asc(notes.id));
   }
 
   async findById(id: string) {
@@ -70,5 +73,34 @@ export class NotesRepository {
     await db
       .delete(notes)
       .where(eq(notes.id, id));
+  }
+
+  async create(input: CreateNoteInput) {
+    const [note] = await db
+      .insert(notes)
+      .values({
+        id: input.id,
+        userId: input.userId,
+        content: input.content || '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    return note;
+  }
+
+  async createBatch(inputs: CreateNoteInput[]) {
+    return await db
+      .insert(notes)
+      .values(
+        inputs.map(input => ({
+          id: input.id,
+          userId: input.userId,
+          content: input.content || '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }))
+      )
+      .returning();
   }
 }
