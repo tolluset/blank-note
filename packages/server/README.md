@@ -1,21 +1,14 @@
-```txt
-npm install
-npm run dev
-```
+# How to start
 
-```txt
-npm run deploy
-```
+```bash
+# create a network
+docker network create app-network
 
-[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
+# start the database and server containers
+docker-compose -f docker-compose.db.yml up -d
+docker-compose -f docker-compose.server.yml up -d
 
-```txt
-npm run cf-typegen
-```
-
-Pass the `CloudflareBindings` as generics when instantiation `Hono`:
-
-```ts
-// src/index.ts
-const app = new Hono<{ Bindings: CloudflareBindings }>()
+# if in top directory
+docker-compose -f packages/server/docker-compose.db.yml up -d
+docker-compose -f packages/server/docker-compose.server.yml up -d
 ```
