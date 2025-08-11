@@ -14,11 +14,11 @@ export function usePages() {
   const [loading, setLoading] = useState(true)
 
   // 좌표값이 없는 PositionedPage에 랜덤 좌표 추가
-  const ensurePositions = useCallback((pages: any[]): PositionedPage[] => {
+  const ensurePositions = useCallback((pages: (Page | PositionedPage)[]): PositionedPage[] => {
     return pages.map(page => ({
       ...page,
-      x: page.x ?? 40 + Math.random() * 120,
-      y: page.y ?? 40 + Math.random() * 80,
+      x: 'x' in page ? page.x : 40 + Math.random() * 120,
+      y: 'y' in page ? page.y : 40 + Math.random() * 80,
     }))
   }, [])
 
@@ -63,7 +63,7 @@ export function usePages() {
     }
 
     loadData()
-  }, [])
+  }, [ensurePositions])
 
   // debounce를 위한 ref
   const debounceTimers = useRef<Map<string, NodeJS.Timeout>>(new Map())
@@ -134,9 +134,9 @@ export function usePages() {
       // 비로그인 사용자: 로컬스토리지 사용
       tearPageLocally(pageId, pageToTear)
     }
-  }, [pages])
+  }, [pages, ensurePositions])
 
-  const tearPageLocally = useCallback((pageId: string, pageToTear: any) => {
+  const tearPageLocally = useCallback((pageId: string, pageToTear: Page) => {
     const newTornPage = {
       id: uid(),
       content: pageToTear.content,
@@ -184,9 +184,9 @@ export function usePages() {
       // 비로그인 사용자: 로컬스토리지 사용
       discardFromListLocally(pid, pageToDiscard)
     }
-  }, [loosePages])
+  }, [loosePages, ensurePositions])
 
-  const discardFromListLocally = useCallback((pid: string, pageToDiscard: any) => {
+  const discardFromListLocally = useCallback((pid: string, pageToDiscard: PositionedPage) => {
     const newTrashPage = { ...pageToDiscard, x: 60, y: 60 }
 
     // loose pages에서 제거
@@ -229,9 +229,9 @@ export function usePages() {
       // 비로그인 사용자: 로컬스토리지 사용
       restoreToListLocally(pid, pageToRestore)
     }
-  }, [trashPages])
+  }, [trashPages, ensurePositions])
 
-  const restoreToListLocally = useCallback((pid: string, pageToRestore: any) => {
+  const restoreToListLocally = useCallback((pid: string, pageToRestore: PositionedPage) => {
     const restoredPage = {
       id: pageToRestore.id,
       content: pageToRestore.content,
@@ -272,7 +272,7 @@ export function usePages() {
       // 비로그인 사용자: 로컬스토리지 사용
       deleteForeverLocally(pid)
     }
-  }, [])
+  }, [ensurePositions])
 
   const deleteForeverLocally = useCallback((pid: string) => {
     setTrashPages((prev) => {
@@ -321,8 +321,8 @@ export function usePages() {
     const loosePages = JSON.parse(localStorage.getItem('torn_notes') || '[]')
     const trashPages = JSON.parse(localStorage.getItem('trashed_notes') || '[]')
 
-    const updatedLoose = loosePages.map((p: any) => (p.id === id ? { ...p, x, y } : p))
-    const updatedTrash = trashPages.map((p: any) => (p.id === id ? { ...p, x, y } : p))
+    const updatedLoose = loosePages.map((p: PositionedPage) => (p.id === id ? { ...p, x, y } : p))
+    const updatedTrash = trashPages.map((p: PositionedPage) => (p.id === id ? { ...p, x, y } : p))
 
     localStorageAPI.saveTornNotes(updatedLoose)
     localStorageAPI.saveTrashedNotes(updatedTrash)
