@@ -191,23 +191,31 @@ const translations: Record<Language, Translations> = {
 };
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const getDefaultLanguage = (): Language => {
-    if (typeof window !== "undefined") {
+  const [language, setLanguageState] = useState<Language | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const getDefaultLanguage = (): Language => {
       const browserLang = navigator.language.toLowerCase();
       if (browserLang.startsWith("ko")) return "ko";
       if (browserLang.startsWith("ja")) return "ja";
-    }
-    return "en";
-  };
+      return "en";
+    };
 
-  const [language, setLanguageState] = useState<Language>(getDefaultLanguage());
-
-  useEffect(() => {
     const savedLanguage = localStorage.getItem("language") as Language;
     if (savedLanguage && ["en", "ko", "ja"].includes(savedLanguage)) {
       setLanguageState(savedLanguage);
+    } else {
+      const detectedLanguage = getDefaultLanguage();
+      setLanguageState(detectedLanguage);
+      localStorage.setItem("language", detectedLanguage);
     }
+    setIsLoaded(true);
   }, []);
+
+  if (!isLoaded || language === null) {
+    return null;
+  }
 
   const setLanguage = (newLanguage: Language) => {
     setLanguageState(newLanguage);
@@ -215,11 +223,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const t = (key: keyof Translations): string => {
-    return translations[language][key] || key;
+    return translations[language!][key] || key;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language: language!, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
