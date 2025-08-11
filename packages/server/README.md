@@ -4,9 +4,11 @@ The backend API for Blank Note, built with Hono and PostgreSQL.
 
 ## Tech Stack
 
-- **Runtime**: Hono
-- ORM: drizzle-orm
+- **Framework**: Hono
+- **ORM**: Drizzle ORM
 - **Database**: PostgreSQL
+- **Auth**: Google OAuth
+- **Runtime**: Node.js 22
 
 ## Development Setup
 
@@ -14,7 +16,7 @@ The backend API for Blank Note, built with Hono and PostgreSQL.
 
 - Node.js 22+
 - pnpm
-- Docker(docker-compose) for PostgreSQL
+- Docker & Docker Compose
 
 ### Getting Started
 
@@ -24,22 +26,9 @@ The backend API for Blank Note, built with Hono and PostgreSQL.
    pnpm install
    ```
 
-2. **Database setup**
+2. **Environment configuration**
 
-   ```bash
-   # Create Docker network
-   docker network create app-network
-
-   # Start PostgreSQL
-   docker-compose -f docker-compose.db.yml up -d
-
-   # Run database migrations
-   pnpm db:migrate
-   ```
-
-3. **Environment configuration**
-
-   Create `.env`:
+   Create `.env` file:
 
    ```env
    POSTGRES_USER=example
@@ -51,6 +40,19 @@ The backend API for Blank Note, built with Hono and PostgreSQL.
    GOOGLE_CLIENT_SECRET=your-google-client-secret
    ```
 
+3. **Database setup**
+
+   ```bash
+   # Create Docker network (only needed once)
+   docker network create app-network
+
+   # Start PostgreSQL database
+   docker-compose -f docker-compose.db.yml up -d
+
+   # Run database migrations
+   pnpm db:migrate
+   ```
+
 4. **Start development server**
 
    ```bash
@@ -59,12 +61,53 @@ The backend API for Blank Note, built with Hono and PostgreSQL.
 
    The API will be available at [http://localhost:8787](http://localhost:8787)
 
-### Production Deployment
+### Development Commands
+
+- `pnpm dev` - Start development server with hot reload
+- `pnpm start` - Start production server
+- `pnpm build` - Build TypeScript
+- `pnpm db:generate` - Generate migration files
+- `pnpm db:migrate` - Run database migrations
+
+## Production Deployment
+
+### Prerequisites
+
+- Docker & Docker Compose
+- Environment variables configured
+
+### Deployment Steps
+
+1. **Start database**
+
+   ```bash
+   docker-compose -f docker-compose.db.yml up -d
+   ```
+
+2. **Run migrations**
+
+   ```bash
+   docker-compose -f docker-compose.migrate.yml up --build migrate
+   ```
+
+3. **Start server**
+
+   ```bash
+   docker-compose -f docker-compose.server.yml up -d
+   ```
+
+### Container Management
+
+- **Database**: `docker-compose.db.yml` - PostgreSQL instance
+- **Migration**: `docker-compose.migrate.yml` - One-time migration runner
+- **Server**: `docker-compose.server.yml` - Application server
+
+### Stopping Services
 
 ```bash
-# Start database and server containers
-docker-compose -f docker-compose.db.yml up -d
-docker-compose -f docker-compose.server.yml up -d
+# Stop all services
+docker-compose -f docker-compose.server.yml down
+docker-compose -f docker-compose.db.yml down
 ```
 
 ## API Endpoints
