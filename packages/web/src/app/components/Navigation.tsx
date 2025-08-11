@@ -11,15 +11,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogIn, LogOut } from "lucide-react";
+import { User, LogIn, LogOut, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "../contexts/AuthContext";
+import { useLanguage } from "../contexts/LanguageContext";
 import { LoginModal } from "./LoginModal";
 
 export function Navigation() {
   const pathname = usePathname();
   const { user, isLoggedIn, isLoading, imageLoaded, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleLogout = () => {
@@ -70,7 +72,7 @@ export function Navigation() {
               value="/"
               className="data-[state=active]:bg-background data-[state=active]:text-foreground"
             >
-              노트
+              {t("notes")}
             </TabsTrigger>
           </Link>
           <Link href="/list">
@@ -78,7 +80,7 @@ export function Navigation() {
               value="/list"
               className="data-[state=active]:bg-background data-[state=active]:text-foreground"
             >
-              리스트
+              {t("list")}
             </TabsTrigger>
           </Link>
           <Link href="/trash">
@@ -86,7 +88,7 @@ export function Navigation() {
               value="/trash"
               className="data-[state=active]:bg-background data-[state=active]:text-foreground"
             >
-              휴지통
+              {t("trash")}
             </TabsTrigger>
           </Link>
         </TabsList>
@@ -118,7 +120,7 @@ export function Navigation() {
                   </Avatar>
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">
-                      {user.name || "사용자"}
+                      {user.name || t("user")}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {user.email}
@@ -128,25 +130,44 @@ export function Navigation() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  로그아웃
+                  {t("logout")}
                 </DropdownMenuItem>
               </>
             ) : (
               <DropdownMenuItem onClick={() => setIsLoginModalOpen(true)}>
                 <LogIn className="mr-2 h-4 w-4" />
-                로그인
+                {t("login")}
               </DropdownMenuItem>
             )}
-            {/* @TODO: dark-mode, intl settings */}
-            {/* <DropdownMenuSeparator /> */}
-            {/* <DropdownMenuItem> */}
-            {/*   <Moon className="mr-2 h-4 w-4" /> */}
-            {/*   다크 모드 */}
-            {/* </DropdownMenuItem> */}
-            {/* <DropdownMenuItem> */}
-            {/*   <Languages className="mr-2 h-4 w-4" /> */}
-            {/*   언어 설정 */}
-            {/* </DropdownMenuItem> */}
+            <DropdownMenuSeparator />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <DropdownMenuItem>
+                  <Languages className="mr-2 h-4 w-4" />
+                  {t("language")}
+                </DropdownMenuItem>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="left">
+                <DropdownMenuItem
+                  onClick={() => setLanguage("en")}
+                  className={language === "en" ? "bg-accent" : ""}
+                >
+                  {t("english")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setLanguage("ko")}
+                  className={language === "ko" ? "bg-accent" : ""}
+                >
+                  {t("korean")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setLanguage("ja")}
+                  className={language === "ja" ? "bg-accent" : ""}
+                >
+                  {t("japanese")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
