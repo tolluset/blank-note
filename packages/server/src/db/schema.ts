@@ -1,5 +1,5 @@
 
-import { pgTable, varchar, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, varchar, text, timestamp, boolean, real } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey(),
@@ -17,6 +17,8 @@ export const notes = pgTable("notes", {
   content: text("content"),
   isTorn: boolean("is_torn").default(false),
   isTrashed: boolean("is_trashed").default(false),
+  x: real("x"),
+  y: real("y"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

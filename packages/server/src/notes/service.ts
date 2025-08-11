@@ -53,6 +53,15 @@ export class NotesService {
     return await this.updateNote(id, { isTrashed: false });
   }
 
+  async updateNotePosition(id: string, x: number, y: number) {
+    const existingNote = await this.repository.findById(id);
+    if (!existingNote) {
+      throw new Error("Note not found");
+    }
+
+    return await this.repository.update(id, { x, y });
+  }
+
   async create100Notes() {
     const currentNotes = await this.getNotes();
     const currentCount = currentNotes.length;

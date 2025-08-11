@@ -13,6 +13,15 @@ export function usePages() {
   const [trashPages, setTrashPages] = useState<PositionedPage[]>([])
   const [loading, setLoading] = useState(true)
 
+  // 좌표값이 없는 PositionedPage에 랜덤 좌표 추가
+  const ensurePositions = useCallback((pages: any[]): PositionedPage[] => {
+    return pages.map(page => ({
+      ...page,
+      x: page.x ?? 40 + Math.random() * 120,
+      y: page.y ?? 40 + Math.random() * 80,
+    }))
+  }, [])
+
   // 데이터 초기 로딩
   useEffect(() => {
     const loadData = async () => {
@@ -28,8 +37,8 @@ export function usePages() {
           ])
 
           setPages(notesData || [])
-          setLoosePages(tornData || [])
-          setTrashPages(trashedData || [])
+          setLoosePages(ensurePositions(tornData || []))
+          setTrashPages(ensurePositions(trashedData || []))
         } catch (error) {
           console.error('Failed to load notes from API:', error)
           // API 실패 시 로컬스토리지로 폴백
@@ -49,8 +58,8 @@ export function usePages() {
       const trashedData = localStorageAPI.getTrashedNotes()
 
       setPages(notesData)
-      setLoosePages(tornData)
-      setTrashPages(trashedData)
+      setLoosePages(ensurePositions(tornData))
+      setTrashPages(ensurePositions(trashedData))
     }
 
     loadData()
@@ -99,10 +108,35 @@ export function usePages() {
   }, [])
 
   // 찢기: 노트 → 페이지 리스트로 이동
-  const tearPage = useCallback((pageId: string) => {
+  const tearPage = useCallback(async (pageId: string) => {
     const pageToTear = pages.find((p) => p.id === pageId)
     if (!pageToTear) return
 
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+    if (token) {
+      // 로그인된 사용자: API 사용
+      try {
+        await notesAPI.tearNote(pageId)
+        // API 호출 후 데이터 다시 로딩
+        const [notesData, tornData] = await Promise.all([
+          notesAPI.getNotes(),
+          notesAPI.getTornNotes(),
+        ])
+        setPages(notesData || [])
+        setLoosePages(ensurePositions(tornData || []))
+      } catch (error) {
+        console.error('Failed to tear note via API:', error)
+        // API 실패 시 로컬스토리지로 폴백
+        tearPageLocally(pageId, pageToTear)
+      }
+    } else {
+      // 비로그인 사용자: 로컬스토리지 사용
+      tearPageLocally(pageId, pageToTear)
+    }
+  }, [pages])
+
+  const tearPageLocally = useCallback((pageId: string, pageToTear: any) => {
     const newTornPage = {
       id: uid(),
       content: pageToTear.content,
@@ -116,24 +150,43 @@ export function usePages() {
     // 찢어진 페이지에 추가
     setLoosePages((prev) => {
       const updatedLoose = [...prev, newTornPage]
-
-      // 로컬스토리지 저장
-      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-      if (!token) {
-        const updatedPages = pages.filter((p) => p.id !== pageId)
-        localStorageAPI.saveNotes(updatedPages)
-        localStorageAPI.saveTornNotes(updatedLoose)
-      }
-
+      const updatedPages = pages.filter((p) => p.id !== pageId)
+      localStorageAPI.saveNotes(updatedPages)
+      localStorageAPI.saveTornNotes(updatedLoose)
       return updatedLoose
     })
   }, [pages])
 
   // 페이지 리스트 → 휴지통
-  const discardFromList = useCallback((pid: string) => {
+  const discardFromList = useCallback(async (pid: string) => {
     const pageToDiscard = loosePages.find((p) => p.id === pid)
     if (!pageToDiscard) return
 
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+    if (token) {
+      // 로그인된 사용자: API 사용
+      try {
+        await notesAPI.moveToTrash(pid)
+        // API 호출 후 데이터 다시 로딩
+        const [tornData, trashedData] = await Promise.all([
+          notesAPI.getTornNotes(),
+          notesAPI.getTrashedNotes(),
+        ])
+        setLoosePages(ensurePositions(tornData || []))
+        setTrashPages(ensurePositions(trashedData || []))
+      } catch (error) {
+        console.error('Failed to move to trash via API:', error)
+        // API 실패 시 로컬스토리지로 폴백
+        discardFromListLocally(pid, pageToDiscard)
+      }
+    } else {
+      // 비로그인 사용자: 로컬스토리지 사용
+      discardFromListLocally(pid, pageToDiscard)
+    }
+  }, [loosePages])
+
+  const discardFromListLocally = useCallback((pid: string, pageToDiscard: any) => {
     const newTrashPage = { ...pageToDiscard, x: 60, y: 60 }
 
     // loose pages에서 제거
@@ -142,24 +195,43 @@ export function usePages() {
     // trash에 추가
     setTrashPages((prev) => {
       const updatedTrash = [...prev, newTrashPage]
-
-      // 로컬스토리지 저장
-      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-      if (!token) {
-        const updatedLoose = loosePages.filter((p) => p.id !== pid)
-        localStorageAPI.saveTornNotes(updatedLoose)
-        localStorageAPI.saveTrashedNotes(updatedTrash)
-      }
-
+      const updatedLoose = loosePages.filter((p) => p.id !== pid)
+      localStorageAPI.saveTornNotes(updatedLoose)
+      localStorageAPI.saveTrashedNotes(updatedTrash)
       return updatedTrash
     })
   }, [loosePages])
 
   // 휴지통에서 리스트로 복원
-  const restoreToList = useCallback((pid: string) => {
+  const restoreToList = useCallback(async (pid: string) => {
     const pageToRestore = trashPages.find((p) => p.id === pid)
     if (!pageToRestore) return
 
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+    if (token) {
+      // 로그인된 사용자: API 사용
+      try {
+        await notesAPI.restoreFromTrash(pid)
+        // API 호출 후 데이터 다시 로딩
+        const [tornData, trashedData] = await Promise.all([
+          notesAPI.getTornNotes(),
+          notesAPI.getTrashedNotes(),
+        ])
+        setLoosePages(ensurePositions(tornData || []))
+        setTrashPages(ensurePositions(trashedData || []))
+      } catch (error) {
+        console.error('Failed to restore from trash via API:', error)
+        // API 실패 시 로컬스토리지로 폴백
+        restoreToListLocally(pid, pageToRestore)
+      }
+    } else {
+      // 비로그인 사용자: 로컬스토리지 사용
+      restoreToListLocally(pid, pageToRestore)
+    }
+  }, [trashPages])
+
+  const restoreToListLocally = useCallback((pid: string, pageToRestore: any) => {
     const restoredPage = {
       id: pageToRestore.id,
       content: pageToRestore.content,
@@ -173,58 +245,87 @@ export function usePages() {
     // 찢은 페이지 리스트에 추가
     setLoosePages((prev) => {
       const updatedLoose = [...prev, restoredPage]
-
-      // 로컬스토리지 저장
-      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-      if (!token) {
-        const updatedTrash = trashPages.filter((p) => p.id !== pid)
-        localStorageAPI.saveTornNotes(updatedLoose)
-        localStorageAPI.saveTrashedNotes(updatedTrash)
-      }
-
+      const updatedTrash = trashPages.filter((p) => p.id !== pid)
+      localStorageAPI.saveTornNotes(updatedLoose)
+      localStorageAPI.saveTrashedNotes(updatedTrash)
       return updatedLoose
     })
   }, [trashPages])
 
   // 휴지통 완전 삭제
-  const deleteForever = useCallback((pid: string) => {
+  const deleteForever = useCallback(async (pid: string) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+    if (token) {
+      // 로그인된 사용자: API 사용
+      try {
+        await notesAPI.deleteNote(pid)
+        // API 호출 후 데이터 다시 로딩
+        const trashedData = await notesAPI.getTrashedNotes()
+        setTrashPages(ensurePositions(trashedData || []))
+      } catch (error) {
+        console.error('Failed to delete note via API:', error)
+        // API 실패 시 로컬스토리지로 폴백
+        deleteForeverLocally(pid)
+      }
+    } else {
+      // 비로그인 사용자: 로컬스토리지 사용
+      deleteForeverLocally(pid)
+    }
+  }, [])
+
+  const deleteForeverLocally = useCallback((pid: string) => {
     setTrashPages((prev) => {
       const updatedTrash = prev.filter((p) => p.id !== pid)
-
-      // 로컬스토리지 저장
-      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-      if (!token) {
-        localStorageAPI.saveTrashedNotes(updatedTrash)
-      }
-
+      localStorageAPI.saveTrashedNotes(updatedTrash)
       return updatedTrash
     })
   }, [])
 
   // 페이지 위치 업데이트 (드래그용)
   const updatePagePosition = useCallback((id: string, x: number, y: number) => {
-    setLoosePages((prev) => {
-      const updated = prev.map((p) => (p.id === id ? { ...p, x, y } : p))
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
 
-      // 로컬스토리지 저장 (변경이 있을 때만)
-      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-      if (!token && updated !== prev) {
-        localStorageAPI.saveTornNotes(updated)
+    // 로컬 상태 즉시 업데이트
+    setLoosePages((prev) => prev.map((p) => (p.id === id ? { ...p, x, y } : p)))
+    setTrashPages((prev) => prev.map((p) => (p.id === id ? { ...p, x, y } : p)))
+
+    // 기존 타이머 제거
+    const existingTimer = debounceTimers.current.get(`position_${id}`)
+    if (existingTimer) {
+      clearTimeout(existingTimer)
+    }
+
+    // 새로운 debounced 업데이트
+    const timer = setTimeout(async () => {
+      if (token) {
+        // 로그인된 사용자: API로 좌표 저장
+        try {
+          await notesAPI.updateNotePosition(id, x, y)
+        } catch (error) {
+          console.error('Failed to update position via API:', error)
+          // API 실패 시 로컬스토리지로 폴백
+          updatePagePositionLocally(id, x, y)
+        }
+      } else {
+        // 비로그인 사용자: 로컬스토리지에 저장
+        updatePagePositionLocally(id, x, y)
       }
+      debounceTimers.current.delete(`position_${id}`)
+    }, 300) // 300ms 디바운스
 
-      return updated
-    })
-    setTrashPages((prev) => {
-      const updated = prev.map((p) => (p.id === id ? { ...p, x, y } : p))
+    debounceTimers.current.set(`position_${id}`, timer)
+  }, [])
 
-      // 로컬스토리지 저장 (변경이 있을 때만)
-      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-      if (!token && updated !== prev) {
-        localStorageAPI.saveTrashedNotes(updated)
-      }
+  const updatePagePositionLocally = useCallback((id: string, x: number, y: number) => {
+    const loosePages = JSON.parse(localStorage.getItem('torn_notes') || '[]')
+    const trashPages = JSON.parse(localStorage.getItem('trashed_notes') || '[]')
 
-      return updated
-    })
+    const updatedLoose = loosePages.map((p: any) => (p.id === id ? { ...p, x, y } : p))
+    const updatedTrash = trashPages.map((p: any) => (p.id === id ? { ...p, x, y } : p))
+
+    localStorageAPI.saveTornNotes(updatedLoose)
+    localStorageAPI.saveTrashedNotes(updatedTrash)
   }, [])
 
   // 100개로 채우기 (부족한 만큼 추가)

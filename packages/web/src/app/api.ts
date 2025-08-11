@@ -51,6 +51,37 @@ export class NotesAPI {
       method: 'POST',
     })
   }
+
+  async tearNote(pageId: string) {
+    return this.request(`/notes/${pageId}/tear`, {
+      method: 'POST',
+    })
+  }
+
+  async moveToTrash(pageId: string) {
+    return this.request(`/notes/${pageId}/trash`, {
+      method: 'POST',
+    })
+  }
+
+  async restoreFromTrash(pageId: string) {
+    return this.request(`/notes/${pageId}/restore`, {
+      method: 'POST',
+    })
+  }
+
+  async deleteNote(pageId: string) {
+    return this.request(`/notes/${pageId}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async updateNotePosition(pageId: string, x: number, y: number) {
+    return this.request(`/notes/${pageId}/position`, {
+      method: 'PATCH',
+      body: JSON.stringify({ x, y }),
+    })
+  }
 }
 
 export class AuthAPI {

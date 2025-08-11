@@ -12,6 +12,8 @@ export interface UpdateNoteInput {
   content?: string;
   isTorn?: boolean;
   isTrashed?: boolean;
+  x?: number;
+  y?: number;
 }
 
 export class NotesRepository {
@@ -21,6 +23,7 @@ export class NotesRepository {
       .from(notes)
       .where(and(
         eq(notes.userId, userId),
+        eq(notes.isTorn, false),
         eq(notes.isTrashed, false)
       ))
       .orderBy(asc(notes.id));
