@@ -15,6 +15,10 @@ type Translations = {
   english: string;
   korean: string;
   japanese: string;
+  theme: string;
+  light: string;
+  dark: string;
+  system: string;
   // Login related
   loginFailed: string;
   googleLoginFailed: string;
@@ -75,6 +79,10 @@ const translations: Record<Language, Translations> = {
     english: "English",
     korean: "Korean",
     japanese: "Japanese",
+    theme: "Theme",
+    light: "Light",
+    dark: "Dark",
+    system: "System",
     // Login related
     loginFailed: "Login failed.",
     googleLoginFailed: "Google login failed.",
@@ -123,6 +131,10 @@ const translations: Record<Language, Translations> = {
     english: "English",
     korean: "한국어",
     japanese: "日本語",
+    theme: "테마",
+    light: "라이트",
+    dark: "다크",
+    system: "시스템",
     // Login related
     loginFailed: "로그인에 실패했습니다.",
     googleLoginFailed: "구글 로그인에 실패했습니다.",
@@ -171,6 +183,10 @@ const translations: Record<Language, Translations> = {
     english: "English",
     korean: "한국어",
     japanese: "日本語",
+    theme: "テーマ",
+    light: "ライト",
+    dark: "ダーク",
+    system: "システム",
     // Login related
     loginFailed: "ログインに失敗しました。",
     googleLoginFailed: "Googleログインに失敗しました。",

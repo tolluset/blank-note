@@ -5,6 +5,7 @@ import { useMemo, useState } from "react"
 import type { Page } from "../types"
 import { Scissors } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import { useLanguage } from "../contexts/LanguageContext"
 
 interface NotebookPageProps {
@@ -30,12 +31,12 @@ export function NotebookPage({ label, page, isLoading, onEdit, onTear }: Noteboo
 
   if (isLoading) {
     return (
-      <div className="relative rounded-lg border bg-white p-3 shadow-sm animate-pulse">
+      <div className="relative rounded-lg border bg-card p-3 shadow-sm animate-pulse">
         <div className="mb-2 flex items-center justify-between">
-          <div className="h-3 w-16 bg-gray-200 rounded"></div>
-          <div className="h-8 w-20 bg-gray-200 rounded"></div>
+          <div className="h-3 w-16 bg-muted rounded"></div>
+          <div className="h-8 w-20 bg-muted rounded"></div>
         </div>
-        <div className="rounded-md border h-[280px] bg-gray-50"></div>
+        <div className="rounded-md border h-[280px] bg-muted/50"></div>
       </div>
     );
   }
@@ -45,9 +46,9 @@ export function NotebookPage({ label, page, isLoading, onEdit, onTear }: Noteboo
   }
 
   return (
-    <div className="relative rounded-lg border bg-white p-3 shadow-sm">
+    <div className="relative rounded-lg border bg-card p-3 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
-        <div className="text-xs text-neutral-500">{label}</div>
+        <div className="text-xs text-muted-foreground">{label}</div>
         <Button
           variant="outline"
           onClick={onTear}
@@ -57,9 +58,9 @@ export function NotebookPage({ label, page, isLoading, onEdit, onTear }: Noteboo
         </Button>
       </div>
 
-      <div className="rounded-md border h-[280px]" aria-label={t("notePage")}>
+      <div className="h-[280px] rounded-md border bg-background" aria-label={t("notePage")}>
         <textarea
-          className="h-full w-full resize-none bg-transparent p-2 outline-none"
+          className="h-full w-full resize-none bg-transparent p-2 outline-none border-0"
           placeholder={isFocused ? t("writeHereDirectly") : ""}
           value={page.content}
           onChange={(e) => onEdit(e.target.value)}

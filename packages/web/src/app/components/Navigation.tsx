@@ -11,17 +11,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogIn, LogOut, Languages } from "lucide-react";
+import { User, LogIn, LogOut, Languages, Palette, Sun, Moon, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { LoginModal } from "./LoginModal";
 
 export function Navigation() {
   const pathname = usePathname();
   const { user, isLoggedIn, isLoading, imageLoaded, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleLogout = () => {
@@ -165,6 +167,37 @@ export function Navigation() {
                   className={language === "ja" ? "bg-accent" : ""}
                 >
                   {t("japanese")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <DropdownMenuItem>
+                  <Palette className="mr-2 h-4 w-4" />
+                  {t("theme")}
+                </DropdownMenuItem>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="left">
+                <DropdownMenuItem
+                  onClick={() => setTheme("light")}
+                  className={theme === "light" ? "bg-accent" : ""}
+                >
+                  <Sun className="mr-2 h-4 w-4" />
+                  {t("light")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setTheme("dark")}
+                  className={theme === "dark" ? "bg-accent" : ""}
+                >
+                  <Moon className="mr-2 h-4 w-4" />
+                  {t("dark")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setTheme("system")}
+                  className={theme === "system" ? "bg-accent" : ""}
+                >
+                  <Monitor className="mr-2 h-4 w-4" />
+                  {t("system")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

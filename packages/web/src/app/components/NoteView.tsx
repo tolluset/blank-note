@@ -36,11 +36,11 @@ export function NoteView({
   const hasNoPages = !isLoading && pagesCount === 0
 
   return (
-    <section className="group relative rounded-lg border bg-white p-3 shadow-sm">
+    <section className="group relative rounded-lg border bg-card p-3 shadow-sm">
       {hasNoPages ? (
         // 페이지 없을 때: 100개 노트 추가 버튼 표시
         <div className="flex flex-col items-center justify-center py-16 gap-4">
-          <div className="text-neutral-500 text-center">
+          <div className="text-muted-foreground text-center">
             <div className="text-lg mb-2">{t("noNotes")}</div>
             <div className="text-sm">{t("startWithEmptyPages")}</div>
           </div>
@@ -66,7 +66,7 @@ export function NoteView({
               >
                 {t("previous")}
               </Button>
-              <div className="text-xs text-neutral-500">{`${spread + 1} / ${totalSpreads}`}</div>
+              <div className="text-xs text-muted-foreground">{`${spread + 1} / ${totalSpreads}`}</div>
               <Button
                 variant="outline"
                 size="sm"
@@ -97,17 +97,17 @@ export function NoteView({
               />
             ) : isLoading ? (
               // 로딩 중일 때 스켈레톤 표시
-              <div className="relative rounded-lg border bg-white p-3 shadow-sm animate-pulse">
+              <div className="relative rounded-lg border bg-card p-3 shadow-sm animate-pulse">
                 <div className="mb-2 flex items-center justify-between">
-                  <div className="h-3 w-16 bg-gray-200 rounded"></div>
-                  <div className="h-8 w-20 bg-gray-200 rounded"></div>
+                  <div className="h-3 w-16 bg-muted rounded"></div>
+                  <div className="h-8 w-20 bg-muted rounded"></div>
                 </div>
-                <div className="rounded-md border h-[280px] bg-gray-50"></div>
+                <div className="rounded-md border h-[280px] bg-muted/50"></div>
               </div>
             ) : (
               // right 페이지가 없을 때 100개로 채우기 버튼 표시
-              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-8 min-h-[400px]">
-                <div className="text-neutral-500 text-center mb-4">
+              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 bg-muted/20 p-8 min-h-[400px]">
+                <div className="text-muted-foreground text-center mb-4">
                   <div className="text-sm mb-2">{t("expandTo100Question")}</div>
                 </div>
                 <Button
