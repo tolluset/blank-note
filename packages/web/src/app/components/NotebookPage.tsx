@@ -62,7 +62,7 @@ export function NotebookPage({ label, page, isLoading, onEdit, onTear }: Noteboo
 
       <div className="h-[280px] rounded-md border bg-background" aria-label={t("notePage")}>
         <Textarea
-          className="h-full w-full resize-none bg-transparent p-2 outline-none border-0"
+          className="h-full w-full resize-none bg-transparent p-2 pt-1.5 outline-none border-0"
           placeholder={isFocused ? t("writeHereDirectly") : ""}
           value={page.content}
           onChange={(e) => onEdit(e.target.value)}
