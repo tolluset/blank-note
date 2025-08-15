@@ -23,7 +23,9 @@ export function NotebookPage({ label, page, isLoading, onEdit, onTear }: Noteboo
   const linedStyle = useMemo(
     () => ({
       backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 23px, #e5e7eb 24px)",
-      backgroundPosition: "0 12px",
+      backgroundPosition: "8px 12px",
+      backgroundSize: "calc(100% - 32px) 100%",
+      backgroundRepeat: "no-repeat",
       backgroundAttachment: "local"
     }),
     [],
