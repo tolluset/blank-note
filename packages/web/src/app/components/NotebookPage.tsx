@@ -1,12 +1,11 @@
 "use client"
 
 import type React from "react"
-import { useMemo, useState } from "react"
 import type { Page } from "../types"
 import { Scissors } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
 import { useLanguage } from "../contexts/LanguageContext"
+import { EditableArea } from "./EditableArea"
 
 interface NotebookPageProps {
   label: string
@@ -17,19 +16,7 @@ interface NotebookPageProps {
 }
 
 export function NotebookPage({ label, page, isLoading, onEdit, onTear }: NotebookPageProps) {
-  const [isFocused, setIsFocused] = useState(false);
   const { t } = useLanguage();
-  
-  const linedStyle = useMemo(
-    () => ({
-      backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 23px, #e5e7eb 24px)",
-      backgroundPosition: "8px 12px",
-      backgroundSize: "calc(100% - 32px) 100%",
-      backgroundRepeat: "no-repeat",
-      backgroundAttachment: "local"
-    }),
-    [],
-  )
 
   if (isLoading) {
     return (
@@ -60,20 +47,12 @@ export function NotebookPage({ label, page, isLoading, onEdit, onTear }: Noteboo
         </Button>
       </div>
 
-      <div className="h-[280px] rounded-md border bg-background" aria-label={t("notePage")}>
-        <Textarea
-          className="h-full w-full resize-none bg-transparent p-2 pt-1.5 outline-none border-0"
-          placeholder={isFocused ? t("writeHereDirectly") : ""}
-          value={page.content}
-          onChange={(e) => onEdit(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          style={{
-            lineHeight: '24px',
-            ...linedStyle
-          }}
-        />
-      </div>
+      <EditableArea
+        value={page.content}
+        onChange={onEdit}
+        minHeightClass="h-[280px]"
+        variant="notebook"
+      />
     </div>
   )
 }
