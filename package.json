@@ -8,6 +8,7 @@
   },
   "packageManager": "pnpm@10.14.0",
   "devDependencies": {
+    "tailwind-scrollbar": "^4.0.2",
     "turbo": "^2.5.5"
   }
 }
