@@ -19,7 +19,7 @@ export function TrashView({ trashPages, onEdit, onDeleteForever, onRestore, onPo
       <div className="flex items-center justify-end">
         <div className="text-xs text-neutral-500">{`${trashPages.length}${t("pages")}`}</div>
       </div>
-      <div className="relative h-[560px] w-full overflow-auto rounded-lg border bg-neutral-50">
+      <div className="relative h-[560px] w-full overflow-auto rounded-lg border bg-card">
         <div className="absolute inset-0">
           {trashPages.map((pp) => (
             <FreePageCard
