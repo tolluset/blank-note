@@ -33,7 +33,7 @@ export function EditableArea({
       onPointerDown={onPointerDown}
     >
       <Textarea
-        className="scrollbar h-full w-full resize-none bg-transparent p-2 pt-1.5 outline-none border-0"
+        className="scrollbar h-full w-full resize-none bg-transparent p-2 pt-1.5 outline-none border-0 leading-6"
         placeholder={t("writeHereDirectly")}
         value={value}
         onChange={(e) => onChange(e.target.value)}
